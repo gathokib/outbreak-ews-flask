@@ -1,0 +1,49 @@
+{% extends "base.html" %}
+{% block title %}Pipeline — Outbreak EWS{% endblock %}
+{% block content %}
+<div class="page-head">
+  <div class="eyebrow">Detection</div>
+  <h1>Run detection pipeline</h1>
+</div>
+
+<form method="post" action="{{ url_for('pipeline.trigger_run') }}" class="form-row">
+  <div class="field">
+    <label>Country</label>
+    <select name="country" required>
+      {% for c in countries %}<option value="{{ c }}">{{ c }}</option>{% endfor %}
+    </select>
+  </div>
+  <div class="field">
+    <label>Detection method</label>
+    <select name="method">
+      <option value="c1">CDC EARS C1</option>
+      <option value="isolation_forest">Isolation Forest</option>
+    </select>
+  </div>
+  <button type="submit" class="btn">Run pipeline</button>
+</form>
+
+<section>
+  <h2>Recent runs</h2>
+  {% if runs %}
+  <table class="data-table">
+    <thead><tr><th>ID</th><th>Country</th><th>Method</th><th>Status</th><th>Rows</th><th>Started</th><th></th></tr></thead>
+    <tbody>
+      {% for run in runs %}
+      <tr>
+        <td>{{ run.id }}</td>
+        <td>{{ run.country }}</td>
+        <td>{{ run.detection_method }}</td>
+        <td><span class="tag tag-{{ run.status }}">{{ run.status }}</span></td>
+        <td>{{ run.rows_processed or '—' }}</td>
+        <td>{{ run.started_at.strftime('%Y-%m-%d %H:%M') }}</td>
+        <td><a href="{{ url_for('pipeline.view_run', run_id=run.id) }}" class="btn btn-ghost btn-sm">View</a></td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  {% else %}
+  <div class="empty-state">No pipeline runs yet — trigger one above.</div>
+  {% endif %}
+</section>
+{% endblock %}

@@ -1,0 +1,43 @@
+{% extends "base.html" %}
+{% block title %}Dashboard — Outbreak EWS{% endblock %}
+{% block content %}
+<div class="page-head">
+  <div class="eyebrow">Live surveillance</div>
+  <h1>Risk status by country</h1>
+</div>
+
+{% if not countries %}
+<div class="empty-state">No countries tracked yet. Run the pipeline for a country to populate this dashboard.</div>
+{% else %}
+<div class="specimen-grid">
+  {% for country in countries %}
+  <div class="specimen risk-{{ country.current_risk_level }}">
+    <h3>{{ country.name }}</h3>
+    <span class="tag tag-{{ country.current_risk_level }}">{{ country.current_risk_level }}</span>
+    <div class="updated">Updated {{ country.last_updated.strftime('%Y-%m-%d %H:%M') }} UTC</div>
+  </div>
+  {% endfor %}
+</div>
+{% endif %}
+
+<section>
+  <h2>Recent pipeline runs</h2>
+  {% if recent_runs %}
+  <table class="data-table">
+    <thead><tr><th>Country</th><th>Method</th><th>Status</th><th>Started</th></tr></thead>
+    <tbody>
+      {% for run in recent_runs %}
+      <tr>
+        <td>{{ run.country }}</td>
+        <td>{{ run.detection_method }}</td>
+        <td><span class="tag tag-{{ run.status }}">{{ run.status }}</span></td>
+        <td>{{ run.started_at.strftime('%Y-%m-%d %H:%M') }}</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  {% else %}
+  <div class="empty-state">No pipeline runs yet.</div>
+  {% endif %}
+</section>
+{% endblock %}

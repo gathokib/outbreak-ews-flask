@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+{% block title %}Log in — Outbreak EWS{% endblock %}
+{% block content %}
+<div class="panel-wrap">
+  <div class="panel">
+    <div class="eyebrow">Outbreak EWS · Access</div>
+    <h2>Log in</h2>
+    <form method="post" novalidate>
+      {{ form.hidden_tag() }}
+      <div class="field">
+        {{ form.username.label }}
+        {{ form.username() }}
+        {% for e in form.username.errors %}<div class="field-error">{{ e }}</div>{% endfor %}
+      </div>
+      <div class="field">
+        {{ form.password.label }}
+        {{ form.password() }}
+        {% for e in form.password.errors %}<div class="field-error">{{ e }}</div>{% endfor %}
+      </div>
+      <button type="submit" class="btn" style="width:100%; justify-content:center;">Log in</button>
+    </form>
+    <p class="panel-foot">No account? <a href="{{ url_for('auth.register') }}">Register</a></p>
+  </div>
+</div>
+{% endblock %}

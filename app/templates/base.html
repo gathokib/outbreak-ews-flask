@@ -1,0 +1,64 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{% block title %}Outbreak EWS{% endblock %}</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <link href="{{ url_for('static', filename='css/style.css') }}" rel="stylesheet">
+</head>
+<body>
+{% macro spike() -%}
+<svg class="spike-mark" viewBox="0 0 26 18" aria-hidden="true">
+  <path d="M1 13 L8 13 L11 4 L14 15 L17 9 L20 13 L25 13"/>
+  <circle cx="14" cy="15" r="1.6"/>
+</svg>
+{%- endmacro %}
+
+  {% if current_user.is_authenticated %}
+  <div class="topbar">
+    <div class="topbar-inner">
+      <a class="brand" href="{{ url_for('dashboard.index') }}">{{ spike() }}Outbreak EWS</a>
+      <button class="nav-toggle" id="navToggle" aria-label="Toggle navigation">Menu</button>
+      <nav class="nav-links" id="navLinks">
+        <a href="{{ url_for('dashboard.index') }}" class="{{ 'active' if request.endpoint == 'dashboard.index' }}">Dashboard</a>
+        <a href="{{ url_for('surveillance.index') }}" class="{{ 'active' if request.blueprint == 'surveillance' }}">Surveillance</a>
+        <a href="{{ url_for('pipeline.index') }}" class="{{ 'active' if request.blueprint == 'pipeline' }}">Pipeline</a>
+        <a href="{{ url_for('alerts.index') }}" class="{{ 'active' if request.blueprint == 'alerts' }}">Alerts log</a>
+      </nav>
+      <div class="nav-meta" id="navMeta">
+        <span>{{ current_user.username }} · {{ current_user.role }}</span>
+        <a class="btn btn-ghost btn-sm" style="color:var(--paper); border-color: rgba(238,241,236,0.3);" href="{{ url_for('auth.logout') }}">Log out</a>
+      </div>
+    </div>
+  </div>
+  {% endif %}
+
+  <div class="container">
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+        {% for category, message in messages %}
+          <div class="flash flash-{{ category }}" role="alert">
+            <span>{{ message }}</span>
+            <button type="button" onclick="this.parentElement.remove()" aria-label="Dismiss">&times;</button>
+          </div>
+        {% endfor %}
+      {% endif %}
+    {% endwith %}
+
+    {% block content %}{% endblock %}
+  </div>
+
+  <script>
+    const toggle = document.getElementById('navToggle');
+    if (toggle) {
+      toggle.addEventListener('click', () => {
+        document.getElementById('navLinks').classList.toggle('open');
+        document.getElementById('navMeta').classList.toggle('open');
+      });
+    }
+  </script>
+  {% block scripts %}{% endblock %}
+</body>
+</html>

@@ -1,0 +1,39 @@
+{% extends "base.html" %}
+{% block title %}Run #{{ run.id }} — Outbreak EWS{% endblock %}
+{% block content %}
+<div class="page-head">
+  <div class="eyebrow">Run #{{ run.id }}</div>
+  <h1>{{ run.country }}</h1>
+  <p style="color:var(--ink-soft); font-family: var(--mono); font-size: 0.85rem;">
+    {{ run.detection_method }} · <span class="tag tag-{{ run.status }}">{{ run.status }}</span> · {{ run.rows_processed or '—' }} rows
+  </p>
+</div>
+
+{% if run.status == 'failed' %}
+<div class="flash flash-danger"><span>{{ run.error_message }}</span></div>
+{% endif %}
+
+<section>
+  <h2>Alerts from this run</h2>
+  {% if alerts %}
+  <table class="data-table">
+    <thead><tr><th>Date</th><th>Value</th><th>Threshold</th><th>Severity</th><th>SMS sent</th></tr></thead>
+    <tbody>
+      {% for alert in alerts %}
+      <tr>
+        <td>{{ alert.alert_date }}</td>
+        <td>{{ alert.metric_value }}</td>
+        <td>{{ alert.threshold_value }}</td>
+        <td><span class="tag tag-{{ alert.severity }}">{{ alert.severity }}</span></td>
+        <td>{{ 'Yes' if alert.sms_sent else 'No' }}</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  {% else %}
+  <div class="empty-state">No anomalies detected in this run.</div>
+  {% endif %}
+</section>
+
+<p style="margin-top:24px;"><a href="{{ url_for('pipeline.index') }}" class="btn btn-ghost btn-sm">← Back to pipeline</a></p>
+{% endblock %}

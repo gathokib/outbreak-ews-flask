@@ -1,0 +1,62 @@
+{% extends "base.html" %}
+{% block title %}Surveillance — Outbreak EWS{% endblock %}
+{% block content %}
+<div class="page-head">
+  <div class="eyebrow">Signal reading</div>
+  <h1>Surveillance</h1>
+</div>
+
+<div class="form-row">
+  <div class="field">
+    <label for="countrySelect">Country</label>
+    <select id="countrySelect">
+      {% for country in countries %}
+      <option value="{{ country.name }}">{{ country.name }}</option>
+      {% endfor %}
+    </select>
+  </div>
+</div>
+
+<div class="chart-card">
+  <canvas id="alertChart" height="90"></canvas>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js"></script>
+<script>
+  const ctx = document.getElementById('alertChart');
+  let chart;
+
+  async function loadData(country) {
+    const res = await fetch(`/surveillance/api/timeseries?country=${encodeURIComponent(country)}`);
+    const data = await res.json();
+
+    if (chart) chart.destroy();
+    chart = new Chart(ctx, {
+      type: 'line',
+      data: {
+        labels: data.labels,
+        datasets: [
+          { label: 'Cases', data: data.values, borderColor: '#2F7A5B', backgroundColor: 'rgba(47,122,91,0.08)', fill: true, tension: 0.25, pointRadius: 2 },
+          { label: 'Threshold', data: data.thresholds, borderColor: '#B3402C', borderDash: [6, 4], pointRadius: 0 }
+        ]
+      },
+      options: {
+        responsive: true,
+        plugins: { legend: { labels: { font: { family: 'IBM Plex Mono', size: 11 } } } },
+        scales: {
+          x: { ticks: { font: { family: 'IBM Plex Mono', size: 10 } } },
+          y: { ticks: { font: { family: 'IBM Plex Mono', size: 10 } } }
+        }
+      }
+    });
+  }
+
+  const select = document.getElementById('countrySelect');
+  if (select.options.length > 0) {
+    loadData(select.value);
+    select.addEventListener('change', () => loadData(select.value));
+  }
+</script>
+{% endblock %}

@@ -1,0 +1,44 @@
+{% extends "base.html" %}
+{% block title %}Alerts log — Outbreak EWS{% endblock %}
+{% block content %}
+<div class="page-head">
+  <div class="eyebrow">History</div>
+  <h1>Alerts log</h1>
+</div>
+
+<form method="get" class="filter-row">
+  <select name="country" onchange="this.form.submit()">
+    <option value="">All countries</option>
+    {% for c in countries %}
+    <option value="{{ c }}" {{ 'selected' if c == selected_country else '' }}>{{ c }}</option>
+    {% endfor %}
+  </select>
+  <select name="severity" onchange="this.form.submit()">
+    <option value="">All severities</option>
+    <option value="low" {{ 'selected' if selected_severity == 'low' else '' }}>Low</option>
+    <option value="medium" {{ 'selected' if selected_severity == 'medium' else '' }}>Medium</option>
+    <option value="high" {{ 'selected' if selected_severity == 'high' else '' }}>High</option>
+  </select>
+</form>
+
+{% if alerts %}
+<table class="data-table">
+  <thead><tr><th>Date</th><th>Country</th><th>Value</th><th>Threshold</th><th>Severity</th><th>SMS sent</th><th>Detected</th></tr></thead>
+  <tbody>
+    {% for alert in alerts %}
+    <tr>
+      <td>{{ alert.alert_date }}</td>
+      <td>{{ alert.country }}</td>
+      <td>{{ alert.metric_value }}</td>
+      <td>{{ alert.threshold_value }}</td>
+      <td><span class="tag tag-{{ alert.severity }}">{{ alert.severity }}</span></td>
+      <td>{{ 'Yes' if alert.sms_sent else 'No' }}</td>
+      <td>{{ alert.created_at.strftime('%Y-%m-%d %H:%M') }}</td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+{% else %}
+<div class="empty-state">No alerts match this filter.</div>
+{% endif %}
+{% endblock %}

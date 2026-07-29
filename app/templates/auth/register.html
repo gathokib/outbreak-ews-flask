@@ -1,0 +1,39 @@
+{% extends "base.html" %}
+{% block title %}Register — Outbreak EWS{% endblock %}
+{% block content %}
+<div class="panel-wrap">
+  <div class="panel">
+    <div class="eyebrow">Outbreak EWS · Access</div>
+    <h2>Create an account</h2>
+    <form method="post" novalidate>
+      {{ form.hidden_tag() }}
+      <div class="field">
+        {{ form.username.label }}
+        {{ form.username() }}
+        {% for e in form.username.errors %}<div class="field-error">{{ e }}</div>{% endfor %}
+      </div>
+      <div class="field">
+        {{ form.email.label }}
+        {{ form.email() }}
+        {% for e in form.email.errors %}<div class="field-error">{{ e }}</div>{% endfor %}
+      </div>
+      <div class="field">
+        {{ form.password.label }}
+        {{ form.password() }}
+        {% for e in form.password.errors %}<div class="field-error">{{ e }}</div>{% endfor %}
+      </div>
+      <div class="field">
+        {{ form.confirm_password.label }}
+        {{ form.confirm_password() }}
+        {% for e in form.confirm_password.errors %}<div class="field-error">{{ e }}</div>{% endfor %}
+      </div>
+      <div class="field">
+        {{ form.role.label }}
+        {{ form.role() }}
+      </div>
+      <button type="submit" class="btn" style="width:100%; justify-content:center;">Create account</button>
+    </form>
+    <p class="panel-foot">Already have an account? <a href="{{ url_for('auth.login') }}">Log in</a></p>
+  </div>
+</div>
+{% endblock %}
