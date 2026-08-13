@@ -1,5 +1,8 @@
 import os
+from dotenv import load_dotenv
 from flask import Flask
+
+load_dotenv()
 
 from config import config_by_name
 from app.extensions import db, login_manager

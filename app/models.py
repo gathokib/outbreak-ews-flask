@@ -42,7 +42,7 @@ class PipelineRun(db.Model):
     __tablename__ = "pipeline_runs"
 
     id = db.Column(db.Integer, primary_key=True)
-    user_id = db.Column(db.Integer, db.ForeignKey("users.id"), nullable=False)
+    user_id = db.Column(db.Integer, db.ForeignKey("users.id"), nullable=True)
     country = db.Column(db.String(80), nullable=False, index=True)
     detection_method = db.Column(db.String(20), nullable=False)  # c1 | isolation_forest
     status = db.Column(db.String(20), nullable=False, default="queued")  # queued|running|completed|failed
