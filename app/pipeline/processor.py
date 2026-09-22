@@ -205,8 +205,8 @@ def process_country(
             "run_id": run.id,
             "country": country,
             "method": method,
-            "error": str(exc),
-        }
+            "error": "Pipeline run failed. Please check the run details or server logs.",
+      }
 
 
 def refresh_country_risk(country_name: str):
