@@ -1,44 +1,215 @@
 {% extends "base.html" %}
-{% block title %}Alerts log — Outbreak EWS{% endblock %}
+
+{% block title %}Alerts Log — Outbreak EWS{% endblock %}
+
 {% block content %}
+
 <div class="page-head">
-  <div class="eyebrow">History</div>
-  <h1>Alerts log</h1>
+  <div>
+    <div class="eyebrow">Detection history</div>
+    <h1>Alerts Log</h1>
+    <p class="page-subtitle">
+      Review anomalies detected by the outbreak surveillance pipeline.
+    </p>
+  </div>
 </div>
 
-<form method="get" class="filter-row">
-  <select name="country" onchange="this.form.submit()">
-    <option value="">All countries</option>
-    {% for c in countries %}
-    <option value="{{ c }}" {{ 'selected' if c == selected_country else '' }}>{{ c }}</option>
-    {% endfor %}
-  </select>
-  <select name="severity" onchange="this.form.submit()">
-    <option value="">All severities</option>
-    <option value="low" {{ 'selected' if selected_severity == 'low' else '' }}>Low</option>
-    <option value="medium" {{ 'selected' if selected_severity == 'medium' else '' }}>Medium</option>
-    <option value="high" {{ 'selected' if selected_severity == 'high' else '' }}>High</option>
-  </select>
-</form>
 
-{% if alerts %}
-<table class="data-table">
-  <thead><tr><th>Date</th><th>Country</th><th>Value</th><th>Threshold</th><th>Severity</th><th>SMS sent</th><th>Detected</th></tr></thead>
-  <tbody>
-    {% for alert in alerts %}
-    <tr>
-      <td>{{ alert.alert_date }}</td>
-      <td>{{ alert.country }}</td>
-      <td>{{ alert.metric_value }}</td>
-      <td>{{ alert.threshold_value }}</td>
-      <td><span class="tag tag-{{ alert.severity }}">{{ alert.severity }}</span></td>
-      <td>{{ 'Yes' if alert.sms_sent else 'No' }}</td>
-      <td>{{ alert.created_at.strftime('%Y-%m-%d %H:%M') }}</td>
-    </tr>
-    {% endfor %}
-  </tbody>
-</table>
-{% else %}
-<div class="empty-state">No alerts match this filter.</div>
-{% endif %}
+<!-- Alert summary -->
+<section class="stats-grid">
+
+  <div class="stat-card">
+    <div class="stat-label">Alerts shown</div>
+    <div class="stat-value">{{ alerts|length }}</div>
+    <div class="stat-note">Matching current filters</div>
+  </div>
+
+  <div class="stat-card stat-danger">
+    <div class="stat-label">High severity</div>
+    <div class="stat-value">
+      {{ alerts|selectattr("severity", "equalto", "high")|list|length }}
+    </div>
+    <div class="stat-note">Requires attention</div>
+  </div>
+
+  <div class="stat-card">
+    <div class="stat-label">C1 detections</div>
+    <div class="stat-value">
+      {{ alerts|selectattr("detection_method", "equalto", "c1")|list|length }}
+    </div>
+    <div class="stat-note">Statistical detection</div>
+  </div>
+
+  <div class="stat-card">
+    <div class="stat-label">ML detections</div>
+    <div class="stat-value">
+      {{ alerts|selectattr("detection_method", "equalto", "isolation_forest")|list|length }}
+    </div>
+    <div class="stat-note">Isolation Forest</div>
+  </div>
+
+</section>
+
+
+<!-- Filters -->
+<section class="dashboard-section">
+
+  <div class="section-head">
+    <div>
+      <div class="eyebrow">Filter results</div>
+      <h2>Alert Filters</h2>
+    </div>
+  </div>
+
+  <form method="get" class="filter-row">
+
+    <select name="country" onchange="this.form.submit()">
+      <option value="">All countries</option>
+
+      {% for c in countries %}
+        <option
+          value="{{ c }}"
+          {{ 'selected' if c == selected_country else '' }}
+        >
+          {{ c }}
+        </option>
+      {% endfor %}
+
+    </select>
+
+
+    <select name="severity" onchange="this.form.submit()">
+
+      <option value="">All severities</option>
+
+      <option
+        value="medium"
+        {{ 'selected' if selected_severity == 'medium' else '' }}
+      >
+        Medium
+      </option>
+
+      <option
+        value="high"
+        {{ 'selected' if selected_severity == 'high' else '' }}
+      >
+        High
+      </option>
+
+    </select>
+
+  </form>
+
+</section>
+
+
+<!-- Alert table -->
+<section class="dashboard-section">
+
+  <div class="section-head">
+    <div>
+      <div class="eyebrow">Detected anomalies</div>
+      <h2>Alert Records</h2>
+    </div>
+  </div>
+
+  {% if alerts %}
+
+  <div class="table-wrap">
+
+    <table class="data-table">
+
+      <thead>
+        <tr>
+          <th>Date</th>
+          <th>Country</th>
+          <th>Cases</th>
+          <th>Method</th>
+          <th>Severity</th>
+          <th>Detection reason</th>
+          <th>SMS</th>
+          <th>Detected</th>
+        </tr>
+      </thead>
+
+      <tbody>
+
+        {% for alert in alerts %}
+
+        <tr>
+
+          <td>
+            {{ alert.alert_date }}
+          </td>
+
+          <td>
+            <strong>{{ alert.country }}</strong>
+          </td>
+
+          <td>
+            {{ "%.0f"|format(alert.metric_value) }}
+          </td>
+
+          <td>
+
+            {% if alert.detection_method == "isolation_forest" %}
+
+              <span class="method-label">
+                Isolation Forest
+              </span>
+
+            {% else %}
+
+              <span class="method-label">
+                C1
+              </span>
+
+            {% endif %}
+
+          </td>
+
+          <td>
+            <span class="tag tag-{{ alert.severity }}">
+              {{ alert.severity|upper }}
+            </span>
+          </td>
+
+          <td class="reason-cell">
+            {{ alert.reason or "Anomaly detected by surveillance pipeline." }}
+          </td>
+
+          <td>
+
+            {% if alert.sms_sent %}
+              <span class="sms-status sms-sent">Sent</span>
+            {% else %}
+              <span class="sms-status">Not sent</span>
+            {% endif %}
+
+          </td>
+
+          <td>
+            {{ alert.created_at.strftime('%Y-%m-%d %H:%M') }}
+          </td>
+
+        </tr>
+
+        {% endfor %}
+
+      </tbody>
+
+    </table>
+
+  </div>
+
+  {% else %}
+
+  <div class="empty-state">
+    No alerts match the selected filters.
+  </div>
+
+  {% endif %}
+
+</section>
+
 {% endblock %}

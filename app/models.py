@@ -49,6 +49,10 @@ class PipelineRun(db.Model):
     started_at = db.Column(db.DateTime, default=utcnow, nullable=False)
     completed_at = db.Column(db.DateTime, nullable=True)
     rows_processed = db.Column(db.Integer, nullable=True)
+    anomalies_detected = db.Column(db.Integer, default=0)
+    alerts_created = db.Column(db.Integer, default=0)
+    alerts_skipped = db.Column(db.Integer, default=0)
+    sms_sent = db.Column(db.Integer, default=0)
     error_message = db.Column(db.Text, nullable=True)
 
     alerts = db.relationship(
@@ -63,19 +67,65 @@ class Alert(db.Model):
     __tablename__ = "alerts"
 
     id = db.Column(db.Integer, primary_key=True)
-    pipeline_run_id = db.Column(db.Integer, db.ForeignKey("pipeline_runs.id"), nullable=False)
-    country = db.Column(db.String(80), nullable=False, index=True)
-    alert_date = db.Column(db.Date, nullable=False)
-    metric_value = db.Column(db.Float, nullable=False)
-    threshold_value = db.Column(db.Float, nullable=False)
-    severity = db.Column(db.String(20), nullable=False, default="medium")  # low|medium|high
-    sms_sent = db.Column(db.Boolean, default=False, nullable=False)
-    created_at = db.Column(db.DateTime, default=utcnow, nullable=False)
+
+    pipeline_run_id = db.Column(
+        db.Integer,
+        db.ForeignKey("pipeline_runs.id"),
+        nullable=False,
+    )
+
+    country = db.Column(
+        db.String(80),
+        nullable=False,
+        index=True,
+    )
+
+    alert_date = db.Column(
+        db.Date,
+        nullable=False,
+    )
+
+    metric_value = db.Column(
+        db.Float,
+        nullable=False,
+    )
+
+    threshold_value = db.Column(
+        db.Float,
+        nullable=False,
+    )
+
+    detection_method = db.Column(
+        db.String(30),
+        nullable=False,
+        default="c1",
+    )
+
+    reason = db.Column(
+        db.Text,
+        nullable=True,
+    )
+
+    severity = db.Column(
+        db.String(20),
+        nullable=False,
+        default="medium",
+    )
+
+    sms_sent = db.Column(
+        db.Boolean,
+        default=False,
+        nullable=False,
+    )
+
+    created_at = db.Column(
+        db.DateTime,
+        default=utcnow,
+        nullable=False,
+    )
 
     def __repr__(self):
         return f"<Alert {self.id} {self.country} {self.severity}>"
-
-
 class Country(db.Model):
     __tablename__ = "countries"
 
@@ -89,3 +139,83 @@ class Country(db.Model):
 
     def __repr__(self):
         return f"<Country {self.name} {self.current_risk_level}>"
+
+class Observation(db.Model):
+    __tablename__ = "observations"
+
+    id = db.Column(db.Integer, primary_key=True)
+
+    disease = db.Column(
+        db.String(100),
+        nullable=False,
+        default="COVID-19",
+        index=True,
+    )
+
+    country = db.Column(
+        db.String(80),
+        nullable=False,
+        index=True,
+    )
+
+    location = db.Column(
+        db.String(120),
+        nullable=True,
+        index=True,
+    )
+
+    observation_date = db.Column(
+        db.Date,
+        nullable=False,
+        index=True,
+    )
+
+    cases = db.Column(
+        db.Float,
+        nullable=False,
+    )
+
+    deaths = db.Column(
+        db.Float,
+        nullable=True,
+        default=0,
+    )
+
+    latitude = db.Column(
+        db.Float,
+        nullable=True,
+    )
+
+    longitude = db.Column(
+        db.Float,
+        nullable=True,
+    )
+
+    source = db.Column(
+        db.String(255),
+        nullable=True,
+    )
+
+    created_at = db.Column(
+        db.DateTime,
+        default=utcnow,
+        nullable=False,
+    )
+
+    __table_args__ = (
+        db.UniqueConstraint(
+            "disease",
+            "country",
+            "location",
+            "observation_date",
+            "source",
+            name="uq_observation_record",
+        ),
+    )
+
+    def __repr__(self):
+        return (
+            f"<Observation {self.country} "
+            f"{self.observation_date} "
+            f"{self.cases}>"
+        )

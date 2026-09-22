@@ -1,62 +1,507 @@
 {% extends "base.html" %}
-{% block title %}Surveillance — Outbreak EWS{% endblock %}
-{% block content %}
-<div class="page-head">
-  <div class="eyebrow">Signal reading</div>
-  <h1>Surveillance</h1>
-</div>
 
-<div class="form-row">
-  <div class="field">
-    <label for="countrySelect">Country</label>
-    <select id="countrySelect">
-      {% for country in countries %}
-      <option value="{{ country.name }}">{{ country.name }}</option>
-      {% endfor %}
-    </select>
+{% block title %}Surveillance — Outbreak EWS{% endblock %}
+
+{% block content %}
+
+<div class="page-head">
+  <div>
+    <div class="eyebrow">Surveillance Analysis</div>
+    <h1>Surveillance Data</h1>
+    <p class="page-subtitle">
+      Compare observed cases with the C1 baseline and machine-learning
+      anomaly detection results.
+    </p>
   </div>
 </div>
 
-<div class="chart-card">
-  <canvas id="alertChart" height="90"></canvas>
-</div>
+
+<!-- Controls -->
+<section class="dashboard-section">
+
+  <div class="section-head">
+    <div>
+      <div class="eyebrow">Analysis controls</div>
+      <h2>Select surveillance area</h2>
+    </div>
+  </div>
+
+  <div class="pipeline-run-card">
+
+    <label for="countrySelect">Country</label>
+
+    <select id="countrySelect" class="form-control">
+
+      <option value="">
+        Select a country
+      </option>
+
+      {% for country in countries %}
+
+      <option value="{{ country.name }}">
+        {{ country.name }}
+      </option>
+
+      {% endfor %}
+
+    </select>
+
+  </div>
+
+</section>
+
+
+<!-- Detection models -->
+<section class="dashboard-section">
+
+  <div class="section-head">
+    <div>
+      <div class="eyebrow">Detection models</div>
+      <h2>How anomalies are identified</h2>
+    </div>
+  </div>
+
+  <div class="detection-grid">
+
+    <div class="detection-card">
+
+      <div class="detection-label">
+        Statistical detection
+      </div>
+
+      <h3>C1 — EARS</h3>
+
+      <p>
+        Compares observed cases with a lagged historical baseline.
+        A signal is generated when cases exceed the configured
+        standard-deviation threshold.
+      </p>
+
+      <div class="model-detail">
+        Baseline: 7 periods · Lag: 2 periods
+      </div>
+
+    </div>
+
+
+    <div class="detection-card">
+
+      <div class="detection-label">
+        Machine learning
+      </div>
+
+      <h3>Isolation Forest</h3>
+
+      <p>
+        Identifies unusual surveillance patterns using engineered
+        features such as growth rate, rolling averages and deviation
+        from baseline.
+      </p>
+
+      <div class="model-detail">
+        Unsupervised anomaly detection
+      </div>
+
+    </div>
+
+  </div>
+
+</section>
+
+
+<!-- Chart -->
+<section class="dashboard-section">
+
+  <div class="section-head">
+    <div>
+      <div class="eyebrow">Time-series analysis</div>
+      <h2>Cases vs Expected Baseline</h2>
+    </div>
+
+    <span id="chartCountry" class="section-meta">
+      No country selected
+    </span>
+  </div>
+
+  <div class="chart-card">
+
+    <canvas id="surveillanceChart"></canvas>
+
+    <div id="chartMessage" class="empty-state">
+      Select a country to load surveillance data.
+    </div>
+
+  </div>
+
+</section>
+
+
+<!-- Summary -->
+<section class="dashboard-section">
+
+  <div class="section-head">
+    <div>
+      <div class="eyebrow">Detection summary</div>
+      <h2>Analysis Results</h2>
+    </div>
+  </div>
+
+
+  <div class="stats-grid">
+
+    <div class="stat-card">
+
+      <div class="stat-label">
+        Observations
+      </div>
+
+      <div
+        class="stat-value"
+        id="observationCount"
+      >
+        —
+      </div>
+
+      <div class="stat-note">
+        Surveillance records
+      </div>
+
+    </div>
+
+
+    <div class="stat-card">
+
+      <div class="stat-label">
+        C1 signals
+      </div>
+
+      <div
+        class="stat-value"
+        id="c1Count"
+      >
+        —
+      </div>
+
+      <div class="stat-note">
+        Statistical detections
+      </div>
+
+    </div>
+
+
+    <div class="stat-card">
+
+      <div class="stat-label">
+        ML anomalies
+      </div>
+
+      <div
+        class="stat-value"
+        id="mlCount"
+      >
+        —
+      </div>
+
+      <div class="stat-note">
+        Isolation Forest detections
+      </div>
+
+    </div>
+
+
+    <div class="stat-card">
+
+      <div class="stat-label">
+        Country
+      </div>
+
+      <div
+        class="stat-value"
+        id="selectedCountry"
+      >
+        —
+      </div>
+
+      <div class="stat-note">
+        Current analysis
+      </div>
+
+    </div>
+
+  </div>
+
+</section>
+
+
+<!-- Interpretation -->
+<section class="dashboard-section">
+
+  <div class="section-head">
+    <div>
+      <div class="eyebrow">Interpretation</div>
+      <h2>How to read the chart</h2>
+    </div>
+  </div>
+
+  <div class="detection-card">
+
+    <p>
+      The observed cases line represents the surveillance data stored
+      in the database. The expected baseline represents the C1
+      statistical expectation. Highlighted anomaly points represent
+      observations identified by the Isolation Forest model.
+    </p>
+
+  </div>
+
+</section>
+
 {% endblock %}
 
+
 {% block scripts %}
-<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js"></script>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
 <script>
-  const ctx = document.getElementById('alertChart');
-  let chart;
 
-  async function loadData(country) {
-    const res = await fetch(`/surveillance/api/timeseries?country=${encodeURIComponent(country)}`);
-    const data = await res.json();
+let surveillanceChart = null;
 
-    if (chart) chart.destroy();
-    chart = new Chart(ctx, {
-      type: 'line',
-      data: {
-        labels: data.labels,
-        datasets: [
-          { label: 'Cases', data: data.values, borderColor: '#2F7A5B', backgroundColor: 'rgba(47,122,91,0.08)', fill: true, tension: 0.25, pointRadius: 2 },
-          { label: 'Threshold', data: data.thresholds, borderColor: '#B3402C', borderDash: [6, 4], pointRadius: 0 }
-        ]
-      },
-      options: {
-        responsive: true,
-        plugins: { legend: { labels: { font: { family: 'IBM Plex Mono', size: 11 } } } },
-        scales: {
-          x: { ticks: { font: { family: 'IBM Plex Mono', size: 10 } } },
-          y: { ticks: { font: { family: 'IBM Plex Mono', size: 10 } } }
+
+const countrySelect =
+  document.getElementById("countrySelect");
+
+const chartMessage =
+  document.getElementById("chartMessage");
+
+const chartCountry =
+  document.getElementById("chartCountry");
+
+const observationCount =
+  document.getElementById("observationCount");
+
+const c1Count =
+  document.getElementById("c1Count");
+
+const mlCount =
+  document.getElementById("mlCount");
+
+const selectedCountry =
+  document.getElementById("selectedCountry");
+
+
+countrySelect.addEventListener(
+  "change",
+  loadData
+);
+
+
+async function loadData() {
+
+  const country =
+    countrySelect.value;
+
+  if (!country) {
+
+    chartCountry.textContent =
+      "No country selected";
+
+    chartMessage.textContent =
+      "Select a country to load surveillance data.";
+
+    return;
+  }
+
+
+  chartMessage.textContent =
+    "Loading surveillance data...";
+
+
+  try {
+
+    const response =
+      await fetch(
+        `/surveillance/api/timeseries?country=${encodeURIComponent(country)}`
+      );
+
+
+    const data =
+      await response.json();
+
+
+    if (!response.ok) {
+
+      throw new Error(
+        data.error ||
+        "Failed to load surveillance data."
+      );
+
+    }
+
+
+    const labels =
+      data.labels || [];
+
+    const cases =
+      data.cases || [];
+
+    const expected =
+      data.expected || [];
+
+    const c1Alerts =
+      data.c1_alerts || [];
+
+    const mlAnomalies =
+      data.ml_anomalies || [];
+
+
+    observationCount.textContent =
+      cases.length;
+
+    c1Count.textContent =
+      c1Alerts.filter(Boolean).length;
+
+    mlCount.textContent =
+      mlAnomalies.filter(Boolean).length;
+
+    selectedCountry.textContent =
+      data.country || country;
+
+    chartCountry.textContent =
+      data.country || country;
+
+
+    const anomalyPoints =
+      cases.map(
+        (value, index) =>
+          mlAnomalies[index]
+            ? value
+            : null
+      );
+
+
+    if (surveillanceChart) {
+
+      surveillanceChart.destroy();
+
+    }
+
+
+    const canvas =
+      document.getElementById(
+        "surveillanceChart"
+      );
+
+
+    surveillanceChart =
+      new Chart(
+        canvas,
+        {
+          type: "line",
+
+          data: {
+
+            labels: labels,
+
+            datasets: [
+
+              {
+                label: "Observed Cases",
+
+                data: cases,
+
+                borderWidth: 2,
+
+                tension: 0.2,
+
+                pointRadius: 2
+              },
+
+
+              {
+                label: "Expected C1 Baseline",
+
+                data: expected,
+
+                borderWidth: 2,
+
+                borderDash: [6, 6],
+
+                tension: 0.2,
+
+                pointRadius: 0
+              },
+
+
+              {
+                label: "Isolation Forest Anomaly",
+
+                data: anomalyPoints,
+
+                showLine: false,
+
+                pointRadius: 6,
+
+                pointHoverRadius: 8
+              }
+
+            ]
+
+          },
+
+
+          options: {
+
+            responsive: true,
+
+            maintainAspectRatio: false,
+
+            interaction: {
+              mode: "index",
+              intersect: false
+            },
+
+            plugins: {
+
+              legend: {
+                display: true
+              }
+
+            },
+
+            scales: {
+
+              y: {
+                beginAtZero: true
+              }
+
+            }
+
+          }
+
         }
-      }
-    });
+      );
+
+
+    chartMessage.style.display =
+      "none";
+
+
+  } catch (error) {
+
+    console.error(error);
+
+    chartMessage.textContent =
+      error.message ||
+      "Unable to load surveillance data.";
+
+    chartMessage.style.display =
+      "block";
+
   }
 
-  const select = document.getElementById('countrySelect');
-  if (select.options.length > 0) {
-    loadData(select.value);
-    select.addEventListener('change', () => loadData(select.value));
-  }
+}
+
 </script>
+
 {% endblock %}

@@ -1,43 +1,385 @@
 {% extends "base.html" %}
+
 {% block title %}Dashboard — Outbreak EWS{% endblock %}
+
 {% block content %}
+
 <div class="page-head">
-  <div class="eyebrow">Live surveillance</div>
-  <h1>Risk status by country</h1>
-</div>
-
-{% if not countries %}
-<div class="empty-state">No countries tracked yet. Run the pipeline for a country to populate this dashboard.</div>
-{% else %}
-<div class="specimen-grid">
-  {% for country in countries %}
-  <div class="specimen risk-{{ country.current_risk_level }}">
-    <h3>{{ country.name }}</h3>
-    <span class="tag tag-{{ country.current_risk_level }}">{{ country.current_risk_level }}</span>
-    <div class="updated">Updated {{ country.last_updated.strftime('%Y-%m-%d %H:%M') }} UTC</div>
+  <div>
+    <div class="eyebrow">Outbreak Early Warning System</div>
+    <h1>Surveillance Dashboard</h1>
+    <p class="page-subtitle">
+      Monitor surveillance activity, detected anomalies, and country risk levels.
+    </p>
   </div>
-  {% endfor %}
 </div>
-{% endif %}
 
-<section>
-  <h2>Recent pipeline runs</h2>
-  {% if recent_runs %}
-  <table class="data-table">
-    <thead><tr><th>Country</th><th>Method</th><th>Status</th><th>Started</th></tr></thead>
-    <tbody>
-      {% for run in recent_runs %}
-      <tr>
-        <td>{{ run.country }}</td>
-        <td>{{ run.detection_method }}</td>
-        <td><span class="tag tag-{{ run.status }}">{{ run.status }}</span></td>
-        <td>{{ run.started_at.strftime('%Y-%m-%d %H:%M') }}</td>
-      </tr>
-      {% endfor %}
-    </tbody>
-  </table>
-  {% else %}
-  <div class="empty-state">No pipeline runs yet.</div>
-  {% endif %}
+<!-- Key statistics -->
+<section class="stats-grid">
+
+  <div class="stat-card">
+    <div class="stat-label">Countries monitored</div>
+    <div class="stat-value">{{ countries|length }}</div>
+    <div class="stat-note">Active surveillance coverage</div>
+  </div>
+
+  <div class="stat-card">
+    <div class="stat-label">Observations</div>
+    <div class="stat-value">{{ total_observations }}</div>
+    <div class="stat-note">Records in surveillance database</div>
+  </div>
+
+  <div class="stat-card">
+    <div class="stat-label">Total alerts</div>
+    <div class="stat-value">{{ total_alerts }}</div>
+    <div class="stat-note">Detected anomalies</div>
+  </div>
+
+  <div class="stat-card stat-danger">
+    <div class="stat-label">High severity</div>
+    <div class="stat-value">{{ high_alerts }}</div>
+    <div class="stat-note">Alerts requiring attention</div>
+  </div>
+
 </section>
+
+<!-- Geographic risk map -->
+<section class="dashboard-section">
+
+  <div class="section-head">
+    <div>
+      <div class="eyebrow">Geographic monitoring</div>
+      <h2>Outbreak Risk Map</h2>
+    </div>
+
+    <span class="section-meta">
+      {{ countries|length }} countries monitored
+    </span>
+  </div>
+
+  <div id="riskMap" class="risk-map"></div>
+
+</section>
+
+<!-- Country risk -->
+<section class="dashboard-section">
+
+  <div class="section-head">
+    <div>
+      <div class="eyebrow">Risk monitoring</div>
+      <h2>Country Risk Overview</h2>
+    </div>
+
+    <span class="section-meta">
+      {{ countries|length }} countries
+    </span>
+  </div>
+
+  {% if countries %}
+
+  <div class="risk-grid">
+
+    {% for country in countries %}
+
+    <div class="risk-card risk-{{ country.current_risk_level }}">
+
+      <div class="risk-card-top">
+        <h3>{{ country.name }}</h3>
+
+        <span class="tag tag-{{ country.current_risk_level }}">
+          {{ country.current_risk_level|upper }}
+        </span>
+      </div>
+
+      <div class="risk-status">
+
+        {% if country.current_risk_level == "high" %}
+          <span class="risk-dot risk-dot-high"></span>
+          <span>High risk</span>
+
+        {% elif country.current_risk_level == "elevated" %}
+          <span class="risk-dot risk-dot-elevated"></span>
+          <span>Elevated risk</span>
+
+        {% else %}
+          <span class="risk-dot risk-dot-normal"></span>
+          <span>Normal</span>
+        {% endif %}
+
+      </div>
+
+      <div class="updated">
+        Last updated:
+        {{ country.last_updated.strftime('%Y-%m-%d %H:%M') }} UTC
+      </div>
+
+    </div>
+
+    {% endfor %}
+
+  </div>
+
+  {% else %}
+
+  <div class="empty-state">
+    No countries are currently available.
+  </div>
+
+  {% endif %}
+
+</section>
+
+<!-- Recent alerts -->
+<section class="dashboard-section">
+
+  <div class="section-head">
+    <div>
+      <div class="eyebrow">Detection activity</div>
+      <h2>Recent Alerts</h2>
+    </div>
+
+    <a class="btn btn-ghost btn-sm" href="{{ url_for('alerts.index') }}">
+      View all alerts
+    </a>
+  </div>
+
+  {% if recent_alerts %}
+
+  <div class="table-wrap">
+
+    <table class="data-table">
+
+      <thead>
+        <tr>
+          <th>Country</th>
+          <th>Date</th>
+          <th>Cases</th>
+          <th>Method</th>
+          <th>Severity</th>
+          <th>Detection reason</th>
+        </tr>
+      </thead>
+
+      <tbody>
+
+        {% for alert in recent_alerts %}
+
+        <tr>
+
+          <td>
+            <strong>{{ alert.country }}</strong>
+          </td>
+
+          <td>
+            {{ alert.alert_date.strftime('%Y-%m-%d') }}
+          </td>
+
+          <td>
+            {{ "%.0f"|format(alert.metric_value) }}
+          </td>
+
+          <td>
+            <span class="method-label">
+              {% if alert.detection_method == "isolation_forest" %}
+                Isolation Forest
+              {% else %}
+                C1
+              {% endif %}
+            </span>
+          </td>
+
+          <td>
+            <span class="tag tag-{{ alert.severity }}">
+              {{ alert.severity|upper }}
+            </span>
+          </td>
+
+          <td class="reason-cell">
+            {{ alert.reason or "Anomaly detected by surveillance pipeline." }}
+          </td>
+
+        </tr>
+
+        {% endfor %}
+
+      </tbody>
+
+    </table>
+
+  </div>
+
+  {% else %}
+
+  <div class="empty-state">
+    No alerts have been generated yet.
+  </div>
+
+  {% endif %}
+
+</section>
+
+<!-- Pipeline activity -->
+<section class="dashboard-section">
+
+  <div class="section-head">
+    <div>
+      <div class="eyebrow">System activity</div>
+      <h2>Recent Pipeline Runs</h2>
+    </div>
+
+    <a class="btn btn-ghost btn-sm" href="{{ url_for('pipeline.index') }}">
+      Open pipeline
+    </a>
+  </div>
+
+  {% if recent_runs %}
+
+  <div class="table-wrap">
+
+    <table class="data-table">
+
+      <thead>
+        <tr>
+          <th>Country</th>
+          <th>Detection method</th>
+          <th>Status</th>
+          <th>Rows processed</th>
+          <th>Started</th>
+        </tr>
+      </thead>
+
+      <tbody>
+
+        {% for run in recent_runs %}
+
+        <tr>
+
+          <td>
+            <strong>{{ run.country }}</strong>
+          </td>
+
+          <td>
+            {% if run.detection_method == "isolation_forest" %}
+              Isolation Forest
+            {% else %}
+              C1
+            {% endif %}
+          </td>
+
+          <td>
+            <span class="tag tag-{{ run.status }}">
+              {{ run.status|upper }}
+            </span>
+          </td>
+
+          <td>
+            {{ run.rows_processed or "—" }}
+          </td>
+
+          <td>
+            {{ run.started_at.strftime('%Y-%m-%d %H:%M') }}
+          </td>
+
+        </tr>
+
+        {% endfor %}
+
+      </tbody>
+
+    </table>
+
+  </div>
+
+  {% else %}
+
+  <div class="empty-state">
+    No pipeline runs have been recorded yet.
+  </div>
+
+  {% endif %}
+
+</section>
+
+{% endblock %}
+
+{% block scripts %}
+
+<link
+  rel="stylesheet"
+  href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+/>
+
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+<script>
+
+  const countryLocations = {
+    "Kenya": [-0.0236, 37.9062],
+    "Ethiopia": [9.1450, 40.4897],
+    "Tanzania": [-6.3690, 34.8888],
+    "Uganda": [1.3733, 32.2903]
+  };
+
+  const countryRisks = {
+    {% for country in countries %}
+    "{{ country.name }}": "{{ country.current_risk_level }}"{% if not loop.last %},{% endif %}
+    {% endfor %}
+  };
+
+  const map = L.map("riskMap").setView(
+    [2.5, 36.5],
+    5
+  );
+
+  L.tileLayer(
+    "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
+    {
+      attribution: "&copy; OpenStreetMap contributors"
+    }
+  ).addTo(map);
+
+  function riskColor(risk) {
+
+    if (risk === "high") {
+      return "#B3402C";
+    }
+
+    if (risk === "elevated") {
+      return "#C58A22";
+    }
+
+    return "#2F7A5B";
+  }
+
+  Object.entries(countryLocations).forEach(
+    ([country, coordinates]) => {
+
+      const risk = countryRisks[country] || "normal";
+      const color = riskColor(risk);
+
+      const marker = L.circleMarker(
+        coordinates,
+        {
+          radius: 10,
+          color: color,
+          fillColor: color,
+          fillOpacity: 0.75,
+          weight: 2
+        }
+      );
+
+      marker.bindPopup(
+        `
+          <strong>${country}</strong><br>
+          Risk level:
+          <strong>${risk.toUpperCase()}</strong>
+        `
+      );
+
+      marker.addTo(map);
+    }
+  );
+
+</script>
+
 {% endblock %}

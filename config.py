@@ -8,7 +8,7 @@ class Config:
     sensitive is hard-coded — set these in a .env file (see .env.example)
     or as real environment variables when you deploy to Azure."""
 
-    SECRET_KEY = os.environ.get("SECRET_KEY", "dev-key-change-this-before-you-present")
+    SECRET_KEY = os.environ.get("SECRET_KEY")
 
     SQLALCHEMY_DATABASE_URI = os.environ.get(
         "DATABASE_URL", "sqlite:///" + os.path.join(BASE_DIR, "instance", "outbreak_ews.db").replace("\\", "/")

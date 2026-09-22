@@ -1,49 +1,319 @@
 {% extends "base.html" %}
+
 {% block title %}Pipeline — Outbreak EWS{% endblock %}
+
 {% block content %}
+
 <div class="page-head">
-  <div class="eyebrow">Detection</div>
-  <h1>Run detection pipeline</h1>
+  <div>
+    <div class="eyebrow">Detection engine</div>
+    <h1>Run Detection Pipeline</h1>
+    <p class="page-subtitle">
+      Analyse surveillance observations using statistical and machine-learning
+      detection methods.
+    </p>
+  </div>
 </div>
 
-<form method="post" action="{{ url_for('pipeline.trigger_run') }}" class="form-row">
-  <div class="field">
-    <label>Country</label>
-    <select name="country" required>
-      {% for c in countries %}<option value="{{ c }}">{{ c }}</option>{% endfor %}
-    </select>
-  </div>
-  <div class="field">
-    <label>Detection method</label>
-    <select name="method">
-      <option value="c1">CDC EARS C1</option>
-      <option value="isolation_forest">Isolation Forest</option>
-    </select>
-  </div>
-  <button type="submit" class="btn">Run pipeline</button>
-</form>
 
-<section>
-  <h2>Recent runs</h2>
-  {% if runs %}
-  <table class="data-table">
-    <thead><tr><th>ID</th><th>Country</th><th>Method</th><th>Status</th><th>Rows</th><th>Started</th><th></th></tr></thead>
-    <tbody>
-      {% for run in runs %}
-      <tr>
-        <td>{{ run.id }}</td>
-        <td>{{ run.country }}</td>
-        <td>{{ run.detection_method }}</td>
-        <td><span class="tag tag-{{ run.status }}">{{ run.status }}</span></td>
-        <td>{{ run.rows_processed or '—' }}</td>
-        <td>{{ run.started_at.strftime('%Y-%m-%d %H:%M') }}</td>
-        <td><a href="{{ url_for('pipeline.view_run', run_id=run.id) }}" class="btn btn-ghost btn-sm">View</a></td>
-      </tr>
-      {% endfor %}
-    </tbody>
-  </table>
-  {% else %}
-  <div class="empty-state">No pipeline runs yet — trigger one above.</div>
-  {% endif %}
+<!-- Pipeline flow -->
+<section class="dashboard-section">
+
+  <div class="section-head">
+    <div>
+      <div class="eyebrow">System workflow</div>
+      <h2>How an analysis run works</h2>
+    </div>
+  </div>
+
+  <div class="pipeline-flow">
+
+    <div class="pipeline-step">
+      <span class="pipeline-number">01</span>
+      <strong>Surveillance data</strong>
+      <span>Database observations</span>
+    </div>
+
+    <div class="pipeline-arrow">→</div>
+
+    <div class="pipeline-step">
+      <span class="pipeline-number">02</span>
+      <strong>Detection model</strong>
+      <span>C1 or Isolation Forest</span>
+    </div>
+
+    <div class="pipeline-arrow">→</div>
+
+    <div class="pipeline-step">
+      <span class="pipeline-number">03</span>
+      <strong>Anomaly detection</strong>
+      <span>Identify unusual patterns</span>
+    </div>
+
+    <div class="pipeline-arrow">→</div>
+
+    <div class="pipeline-step">
+      <span class="pipeline-number">04</span>
+      <strong>Alert & risk</strong>
+      <span>Update country status</span>
+    </div>
+
+  </div>
+
 </section>
+
+
+<!-- Run pipeline -->
+<section class="dashboard-section">
+
+  <div class="section-head">
+    <div>
+      <div class="eyebrow">Execute analysis</div>
+      <h2>Start a Pipeline Run</h2>
+    </div>
+  </div>
+
+  <div class="pipeline-run-card">
+
+    <form
+      method="post"
+      action="{{ url_for('pipeline.trigger_run') }}"
+      class="form-row"
+    >
+
+      <div class="field">
+
+        <label for="country">
+          Country
+        </label>
+
+        <select
+          id="country"
+          name="country"
+          required
+        >
+
+          {% for c in countries %}
+
+            <option value="{{ c }}">
+              {{ c }}
+            </option>
+
+          {% endfor %}
+
+        </select>
+
+      </div>
+
+
+      <div class="field">
+
+        <label for="method">
+          Detection method
+        </label>
+
+        <select
+          id="method"
+          name="method"
+        >
+
+          <option value="c1">
+            CDC EARS C1 — Statistical
+          </option>
+
+          <option value="isolation_forest">
+            Isolation Forest — Machine Learning
+          </option>
+
+        </select>
+
+      </div>
+
+
+      <div class="field pipeline-submit">
+
+        <label>&nbsp;</label>
+
+        <button
+          type="submit"
+          class="btn"
+        >
+          Run Detection
+        </button>
+
+      </div>
+
+    </form>
+
+  </div>
+
+</section>
+
+
+<!-- Detection methods -->
+<section class="dashboard-section">
+
+  <div class="section-head">
+    <div>
+      <div class="eyebrow">Available models</div>
+      <h2>Detection Methods</h2>
+    </div>
+  </div>
+
+  <div class="detection-grid">
+
+    <div class="detection-card">
+
+      <div class="detection-label">
+        Statistical method
+      </div>
+
+      <h3>CDC EARS C1</h3>
+
+      <p>
+        Establishes a historical baseline using previous observations and
+        identifies cases that rise significantly above the expected level.
+      </p>
+
+      <div class="model-detail">
+        Baseline: 7 periods · Lag: 2 periods · Threshold: 2 SD
+      </div>
+
+    </div>
+
+
+    <div class="detection-card">
+
+      <div class="detection-label">
+        Machine learning
+      </div>
+
+      <h3>Isolation Forest</h3>
+
+      <p>
+        Detects unusual surveillance patterns using multiple features,
+        including growth rate, rolling averages, baseline deviation,
+        growth acceleration, and sustained elevation.
+      </p>
+
+      <div class="model-detail">
+        200 estimators · 5% contamination · Standardized features
+      </div>
+
+    </div>
+
+  </div>
+
+</section>
+
+
+<!-- Recent runs -->
+<section class="dashboard-section">
+
+  <div class="section-head">
+
+    <div>
+      <div class="eyebrow">Execution history</div>
+      <h2>Recent Pipeline Runs</h2>
+    </div>
+
+  </div>
+
+
+  {% if runs %}
+
+  <div class="table-wrap">
+
+    <table class="data-table">
+
+      <thead>
+
+        <tr>
+          <th>ID</th>
+          <th>Country</th>
+          <th>Method</th>
+          <th>Status</th>
+          <th>Rows</th>
+          <th>Started</th>
+          <th></th>
+        </tr>
+
+      </thead>
+
+
+      <tbody>
+
+        {% for run in runs %}
+
+        <tr>
+
+          <td>
+            <strong>#{{ run.id }}</strong>
+          </td>
+
+          <td>
+            {{ run.country }}
+          </td>
+
+          <td>
+
+            {% if run.detection_method == "isolation_forest" %}
+
+              Isolation Forest
+
+            {% else %}
+
+              C1
+
+            {% endif %}
+
+          </td>
+
+          <td>
+
+            <span class="tag tag-{{ run.status }}">
+              {{ run.status|upper }}
+            </span>
+
+          </td>
+
+          <td>
+            {{ run.rows_processed or "—" }}
+          </td>
+
+          <td>
+            {{ run.started_at.strftime('%Y-%m-%d %H:%M') }}
+          </td>
+
+          <td>
+
+            <a
+              href="{{ url_for('pipeline.view_run', run_id=run.id) }}"
+              class="btn btn-ghost btn-sm"
+            >
+              View
+            </a>
+
+          </td>
+
+        </tr>
+
+        {% endfor %}
+
+      </tbody>
+
+    </table>
+
+  </div>
+
+  {% else %}
+
+  <div class="empty-state">
+    No pipeline runs yet. Start an analysis above.
+  </div>
+
+  {% endif %}
+
+</section>
+
 {% endblock %}

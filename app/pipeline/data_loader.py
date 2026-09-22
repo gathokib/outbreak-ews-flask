@@ -1,33 +1,61 @@
-"""Loads the case-count time series that a pipeline run detects on.
+"""Load surveillance observations from the application database."""
 
-For the presentation build, this reads from data/<country>.csv (columns:
-date, cases). Point this at your real OWID/JHU extract by dropping the
-matching CSV into the data/ folder — nothing else in the pipeline needs
-to change, since app/detection/*.py only cares about the ['date','cases']
-shape, not where it came from.
-"""
-
-import os
 import pandas as pd
+from sqlalchemy import func
 
-DATA_DIR = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(__file__))), "data")
+from app.extensions import db
+from app.models import Observation
 
 
 def load_country_data(country: str) -> pd.DataFrame:
-    path = os.path.join(DATA_DIR, f"{country.lower().replace(' ', '_')}.csv")
-    if not os.path.exists(path):
-        raise FileNotFoundError(
-            f"No data file for '{country}'. Expected {path} with columns 'date,cases'."
+    """Load a country's surveillance observations from the database.
+
+    Returns a DataFrame with the same columns expected by the
+    detection algorithms: date and cases.
+    """
+
+    observations = (
+        Observation.query
+        .filter(
+            func.lower(Observation.country) == country.strip().lower()
         )
-    df = pd.read_csv(path, parse_dates=["date"])
-    return df[["date", "cases"]].sort_values("date").reset_index(drop=True)
+        .order_by(Observation.observation_date.asc())
+        .all()
+    )
+
+    if not observations:
+        raise ValueError(
+            f"No observations found in the database for '{country}'."
+        )
+
+    df = pd.DataFrame(
+        [
+            {
+                "date": observation.observation_date,
+                "cases": observation.cases,
+            }
+            for observation in observations
+        ]
+    )
+
+    df["date"] = pd.to_datetime(df["date"])
+    df["cases"] = pd.to_numeric(df["cases"], errors="raise")
+
+    return (
+        df[["date", "cases"]]
+        .sort_values("date")
+        .reset_index(drop=True)
+    )
 
 
 def available_countries() -> list:
-    if not os.path.exists(DATA_DIR):
-        return []
-    return sorted(
-        f[:-4].replace("_", " ").title()
-        for f in os.listdir(DATA_DIR)
-        if f.endswith(".csv")
+    """Return countries that have surveillance observations in the database."""
+
+    countries = (
+        db.session.query(Observation.country)
+        .distinct()
+        .order_by(Observation.country.asc())
+        .all()
     )
+
+    return [country[0] for country in countries]

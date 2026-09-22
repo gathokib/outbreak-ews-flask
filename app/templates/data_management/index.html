@@ -1,0 +1,204 @@
+{% extends "base.html" %}
+
+{% block title %}Data Management · Outbreak EWS{% endblock %}
+
+{% block content %}
+
+<div class="page-header">
+  <div>
+    <span class="eyebrow">SURVEILLANCE DATA</span>
+    <h1>Data Management</h1>
+    <p class="page-subtitle">
+      Import new surveillance observations or export data from the system.
+    </p>
+  </div>
+</div>
+
+<div class="grid-2">
+
+  <!-- IMPORT -->
+  <section class="card">
+    <div class="card-header">
+      <div>
+        <span class="eyebrow">IMPORT</span>
+        <h2>Upload surveillance data</h2>
+      </div>
+    </div>
+
+    <p class="muted">
+      Upload a CSV file containing surveillance observations.
+      The file must contain <strong>date</strong> and <strong>cases</strong> columns.
+    </p>
+
+    <form
+      method="POST"
+      action="{{ url_for('data_management.import_data') }}"
+      enctype="multipart/form-data"
+    >
+
+      <div class="form-group">
+        <label for="file">CSV file</label>
+        <input
+          type="file"
+          id="file"
+          name="file"
+          accept=".csv"
+          required
+        >
+      </div>
+
+      <div class="form-group">
+        <label for="country">Country</label>
+        <select id="country" name="country" required>
+          <option value="">Select country</option>
+
+          <option value="Kenya">Kenya</option>
+          <option value="Ethiopia">Ethiopia</option>
+          <option value="Tanzania">Tanzania</option>
+          <option value="Uganda">Uganda</option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label for="disease">Disease</label>
+        <input
+          type="text"
+          id="disease"
+          name="disease"
+          value="COVID-19"
+          required
+        >
+      </div>
+
+      <button type="submit" class="btn btn-primary">
+        Import CSV
+      </button>
+
+    </form>
+
+    <div class="info-box">
+      <strong>Expected format</strong>
+      <code>date,cases</code>
+
+      <span>Example:</span>
+      <code>2023-03-13,125</code>
+    </div>
+
+  </section>
+
+
+  <!-- EXPORT -->
+  <section class="card">
+
+    <div class="card-header">
+      <div>
+        <span class="eyebrow">EXPORT</span>
+        <h2>Download surveillance data</h2>
+      </div>
+    </div>
+
+    <p class="muted">
+      Export observations currently stored in the database as a CSV file.
+    </p>
+
+    <form
+      method="GET"
+      action="{{ url_for('data_management.export_data') }}"
+    >
+
+      <div class="form-group">
+        <label for="export-country">Country</label>
+
+        <select
+          id="export-country"
+          name="country"
+        >
+
+          <option value="">
+            All countries
+          </option>
+
+          {% for country in countries %}
+            <option value="{{ country }}">
+              {{ country }}
+            </option>
+          {% endfor %}
+
+        </select>
+      </div>
+
+      <button type="submit" class="btn btn-primary">
+        Export CSV
+      </button>
+
+    </form>
+
+    <div class="info-box">
+      <strong>Export includes</strong>
+      <span>
+        Disease, country, location, date, cases, deaths,
+        coordinates and source.
+      </span>
+    </div>
+
+  </section>
+
+</div>
+
+
+<!-- WORKFLOW -->
+
+<section class="card workflow-card">
+
+  <div class="card-header">
+    <div>
+      <span class="eyebrow">WORKFLOW</span>
+      <h2>How imported data is used</h2>
+    </div>
+  </div>
+
+  <div class="pipeline-flow">
+
+    <div class="pipeline-step">
+      <span class="step-number">01</span>
+      <strong>Upload</strong>
+      <span>CSV surveillance data</span>
+    </div>
+
+    <div class="pipeline-arrow">→</div>
+
+    <div class="pipeline-step">
+      <span class="step-number">02</span>
+      <strong>Validate</strong>
+      <span>Check dates and cases</span>
+    </div>
+
+    <div class="pipeline-arrow">→</div>
+
+    <div class="pipeline-step">
+      <span class="step-number">03</span>
+      <strong>Store</strong>
+      <span>Save observations</span>
+    </div>
+
+    <div class="pipeline-arrow">→</div>
+
+    <div class="pipeline-step">
+      <span class="step-number">04</span>
+      <strong>Detect</strong>
+      <span>C1 + Isolation Forest</span>
+    </div>
+
+    <div class="pipeline-arrow">→</div>
+
+    <div class="pipeline-step">
+      <span class="step-number">05</span>
+      <strong>Alert</strong>
+      <span>Dashboard + SMS</span>
+    </div>
+
+  </div>
+
+</section>
+
+{% endblock %}
