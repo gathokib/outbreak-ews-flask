@@ -86,6 +86,28 @@ def process_country(
 
             if existing_alert:
                 alerts_skipped += 1
+
+                if existing_alert.severity == "high" and not existing_alert.sms_sent:
+                    recipient = current_app.config.get(
+                        "ALERT_RECIPIENT",
+                        "",
+                    )
+
+                    if recipient:
+                        sent = send_alert_sms(
+                            to_number=recipient,
+                            message=(
+                                f"[Outbreak EWS] "
+                                f"High-severity {method.upper()} alert "
+                                f"for {country} on {alert_date}"
+                            ),
+                        )
+
+                        existing_alert.sms_sent = sent
+
+                        if sent:
+                            sms_sent += 1
+
                 continue
 
             score = float(row[score_col])
@@ -219,7 +241,10 @@ def refresh_country_risk(country_name: str):
     ).first()
 
     if country is None:
-        country = Country(name=country_name)
+        country = Country(
+            name=country_name,
+            current_risk_level="normal",
+        )
         db.session.add(country)
 
     latest_alert = (

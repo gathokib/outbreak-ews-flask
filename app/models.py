@@ -126,19 +126,51 @@ class Alert(db.Model):
 
     def __repr__(self):
         return f"<Alert {self.id} {self.country} {self.severity}>"
+    
 class Country(db.Model):
     __tablename__ = "countries"
 
     id = db.Column(db.Integer, primary_key=True)
-    name = db.Column(db.String(80), unique=True, nullable=False, index=True)
-    current_risk_level = db.Column(db.String(20), nullable=False, default="normal")  # normal|elevated|high
-    last_alert_id = db.Column(db.Integer, db.ForeignKey("alerts.id"), nullable=True)
-    last_updated = db.Column(db.DateTime, default=utcnow, nullable=False)
 
-    last_alert = db.relationship("Alert", foreign_keys=[last_alert_id])
+    name = db.Column(
+        db.String(80),
+        unique=True,
+        nullable=False,
+        index=True
+    )
 
-    def __repr__(self):
-        return f"<Country {self.name} {self.current_risk_level}>"
+    latitude = db.Column(
+        db.Float,
+        nullable=True
+    )
+
+    longitude = db.Column(
+        db.Float,
+        nullable=True
+    )
+
+    current_risk_level = db.Column(
+        db.String(20),
+        nullable=False,
+        default="normal"
+    )
+
+    last_alert_id = db.Column(
+        db.Integer,
+        db.ForeignKey("alerts.id"),
+        nullable=True
+    )
+
+    last_updated = db.Column(
+        db.DateTime,
+        default=utcnow,
+        nullable=False
+    )
+
+    last_alert = db.relationship(
+        "Alert",
+        foreign_keys=[last_alert_id]
+    )
 
 class Observation(db.Model):
     __tablename__ = "observations"

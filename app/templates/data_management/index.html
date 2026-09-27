@@ -4,109 +4,163 @@
 
 {% block content %}
 
-<div class="page-header">
+<div class="page-header data-page-header">
   <div>
     <span class="eyebrow">SURVEILLANCE DATA</span>
     <h1>Data Management</h1>
     <p class="page-subtitle">
-      Import new surveillance observations or export data from the system.
+      Import and manage surveillance observations used by the outbreak detection system.
     </p>
   </div>
 </div>
 
-<div class="grid-2">
 
-  <!-- IMPORT -->
-  <section class="card">
-    <div class="card-header">
+<!-- IMPORT / EXPORT -->
+<div class="data-management-grid">
+
+  <!-- IMPORT CARD -->
+  <section class="data-card import-card">
+
+    <div class="data-card-heading">
+      <div class="data-icon import-icon">↓</div>
+
       <div>
         <span class="eyebrow">IMPORT</span>
         <h2>Upload surveillance data</h2>
       </div>
     </div>
 
-    <p class="muted">
-      Upload a CSV file containing surveillance observations.
-      The file must contain <strong>date</strong> and <strong>cases</strong> columns.
+    <p class="data-description">
+      Add surveillance observations to the system using CSV, Excel, JSON or PDF files.
     </p>
 
     <form
       method="POST"
       action="{{ url_for('data_management.import_data') }}"
       enctype="multipart/form-data"
+      class="data-form"
     >
 
-      <div class="form-group">
-        <label for="file">CSV file</label>
-        <input
-          type="file"
-          id="file"
-          name="file"
-          accept=".csv"
-          required
-        >
+      <input
+        type="hidden"
+        name="csrf_token"
+        value="{{ csrf_token() }}"
+      >
+
+      <div class="data-form-group">
+
+        <label for="file">Surveillance file</label>
+
+        <div class="file-input-wrapper">
+
+          <input
+            type="file"
+            id="file"
+            name="file"
+            accept=".csv,.xlsx,.json,.pdf"
+            required
+          >
+
+          <label for="file" class="file-input-label">
+            <span class="file-upload-icon">↑</span>
+            <span>
+              <strong>Choose a file</strong>
+              <small>CSV · XLSX · JSON · PDF</small>
+            </span>
+          </label>
+
+        </div>
+
       </div>
 
-      <div class="form-group">
-        <label for="country">Country</label>
-        <select id="country" name="country" required>
-          <option value="">Select country</option>
 
-          <option value="Kenya">Kenya</option>
-          <option value="Ethiopia">Ethiopia</option>
-          <option value="Tanzania">Tanzania</option>
-          <option value="Uganda">Uganda</option>
-        </select>
+      <div class="data-form-row">
+
+        <div class="data-form-group">
+
+          <label for="country">Country</label>
+
+          <input
+            type="text"
+            id="country"
+            name="country"
+            placeholder="e.g. Kenya"
+            required
+          >
+
+        </div>
+
+
+        <div class="data-form-group">
+
+          <label for="disease">Disease</label>
+
+          <input
+            type="text"
+            id="disease"
+            name="disease"
+            value="COVID-19"
+            required
+          >
+
+        </div>
+
       </div>
 
-      <div class="form-group">
-        <label for="disease">Disease</label>
-        <input
-          type="text"
-          id="disease"
-          name="disease"
-          value="COVID-19"
-          required
-        >
-      </div>
 
-      <button type="submit" class="btn btn-primary">
-        Import CSV
+      <button
+        type="submit"
+        class="btn btn-primary data-submit"
+      >
+        Import data
+        <span>→</span>
       </button>
 
     </form>
 
-    <div class="info-box">
-      <strong>Expected format</strong>
-      <code>date,cases</code>
 
-      <span>Example:</span>
-      <code>2023-03-13,125</code>
+    <div class="data-info-box">
+
+      <span class="info-label">REQUIRED COLUMNS</span>
+
+      <div class="required-columns">
+        <code>date</code>
+        <code>cases</code>
+      </div>
+
     </div>
 
   </section>
 
 
-  <!-- EXPORT -->
-  <section class="card">
+  <!-- EXPORT CARD -->
+  <section class="data-card export-card">
 
-    <div class="card-header">
+    <div class="data-card-heading">
+
+      <div class="data-icon export-icon">↑</div>
+
       <div>
         <span class="eyebrow">EXPORT</span>
         <h2>Download surveillance data</h2>
       </div>
+
     </div>
 
-    <p class="muted">
-      Export observations currently stored in the database as a CSV file.
+
+    <p class="data-description">
+      Download observations currently stored in the database as a CSV file.
     </p>
+
 
     <form
       method="GET"
       action="{{ url_for('data_management.export_data') }}"
+      class="data-form"
     >
 
-      <div class="form-group">
+      <div class="data-form-group">
+
         <label for="export-country">Country</label>
 
         <select
@@ -114,9 +168,7 @@
           name="country"
         >
 
-          <option value="">
-            All countries
-          </option>
+          <option value="">All countries</option>
 
           {% for country in countries %}
             <option value="{{ country }}">
@@ -125,20 +177,30 @@
           {% endfor %}
 
         </select>
+
       </div>
 
-      <button type="submit" class="btn btn-primary">
+
+      <button
+        type="submit"
+        class="btn btn-primary data-submit"
+      >
         Export CSV
+        <span>→</span>
       </button>
 
     </form>
 
-    <div class="info-box">
-      <strong>Export includes</strong>
+
+    <div class="data-info-box">
+
+      <span class="info-label">EXPORT CONTENT</span>
+
       <span>
-        Disease, country, location, date, cases, deaths,
+        Disease, country, date, cases, deaths,
         coordinates and source.
       </span>
+
     </div>
 
   </section>
@@ -146,23 +208,32 @@
 </div>
 
 
-<!-- WORKFLOW -->
+<!-- PIPELINE FLOW -->
+<section class="data-card workflow-card">
 
-<section class="card workflow-card">
+  <div class="workflow-header">
 
-  <div class="card-header">
     <div>
-      <span class="eyebrow">WORKFLOW</span>
-      <h2>How imported data is used</h2>
+
+      <span class="eyebrow">PROCESSING PIPELINE</span>
+
+      <h2>From data to alert</h2>
+
     </div>
+
+    <span class="workflow-status">
+      SYSTEM READY
+    </span>
+
   </div>
+
 
   <div class="pipeline-flow">
 
     <div class="pipeline-step">
       <span class="step-number">01</span>
       <strong>Upload</strong>
-      <span>CSV surveillance data</span>
+      <span>Surveillance data</span>
     </div>
 
     <div class="pipeline-arrow">→</div>
@@ -170,7 +241,7 @@
     <div class="pipeline-step">
       <span class="step-number">02</span>
       <strong>Validate</strong>
-      <span>Check dates and cases</span>
+      <span>Check data quality</span>
     </div>
 
     <div class="pipeline-arrow">→</div>
@@ -178,7 +249,7 @@
     <div class="pipeline-step">
       <span class="step-number">03</span>
       <strong>Store</strong>
-      <span>Save observations</span>
+      <span>Database</span>
     </div>
 
     <div class="pipeline-arrow">→</div>
@@ -201,4 +272,132 @@
 
 </section>
 
+
+<!-- DATABASE PREVIEW -->
+<section class="data-card observations-card">
+
+  <div class="observations-header">
+
+    <div>
+
+      <span class="eyebrow">DATABASE</span>
+
+      <h2>Stored observations</h2>
+
+    </div>
+
+
+    {% if observations %}
+
+      <span class="record-count">
+        Showing latest {{ observations|length }}
+      </span>
+
+    {% else %}
+
+      <span class="record-count">
+        No records
+      </span>
+
+    {% endif %}
+
+  </div>
+
+
+  {% if observations %}
+
+    <div class="database-preview">
+
+      <table class="observations-table">
+
+        <thead>
+
+          <tr>
+            <th>Date</th>
+            <th>Country</th>
+            <th>Disease</th>
+            <th>Cases</th>
+            <th>Source</th>
+          </tr>
+
+        </thead>
+
+
+        <tbody>
+
+          {% for observation in observations %}
+
+          <tr>
+
+            <td>
+              {{ observation.observation_date }}
+            </td>
+
+            <td>
+              <strong>{{ observation.country }}</strong>
+            </td>
+
+            <td>
+              {{ observation.disease }}
+            </td>
+
+            <td>
+              <span class="case-value">
+                {{ observation.cases }}
+              </span>
+            </td>
+
+            <td>
+              <span class="source-value">
+                {{ observation.source }}
+              </span>
+            </td>
+
+          </tr>
+
+          {% endfor %}
+
+        </tbody>
+
+      </table>
+
+    </div>
+
+
+    <div class="database-footer">
+
+      <span>
+        Latest records from the surveillance database
+      </span>
+
+      <a
+        href="{{ url_for('data_management.export_data') }}"
+        class="database-export-link"
+      >
+        Export database →
+      </a>
+
+    </div>
+
+
+  {% else %}
+
+    <div class="empty-data-state">
+
+      <span class="empty-data-icon">○</span>
+
+      <strong>No surveillance data</strong>
+
+      <p>
+        Upload a CSV, Excel, JSON or PDF file to add
+        observations to the database.
+      </p>
+
+    </div>
+
+  {% endif %}
+
+</section>
+
 {% endblock %}
+

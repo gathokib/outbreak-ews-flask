@@ -1,6 +1,5 @@
 from flask import Blueprint, render_template
 from flask_login import login_required
-from sqlalchemy import func
 
 from app.extensions import db
 from app.models import Country, PipelineRun, Alert, Observation
@@ -12,6 +11,7 @@ dashboard_bp = Blueprint("dashboard", __name__, url_prefix="/")
 @dashboard_bp.route("/")
 @login_required
 def index():
+
     # Countries currently represented in the surveillance database
     countries = (
         Country.query
@@ -19,8 +19,8 @@ def index():
         .all()
     )
 
-    # If a country has observations but no Country record yet,
-    # make sure it still appears on the dashboard.
+    # Make sure countries appearing in observations
+    # also exist in the Country table
     observation_countries = (
         db.session.query(Observation.country)
         .distinct()
@@ -38,6 +38,7 @@ def index():
                 name=country_name,
                 current_risk_level="normal",
             )
+
             db.session.add(country)
             countries.append(country)
 
@@ -64,7 +65,10 @@ def index():
     # Most recent alerts
     recent_alerts = (
         Alert.query
-        .order_by(Alert.alert_date.desc(), Alert.created_at.desc())
+        .order_by(
+            Alert.alert_date.desc(),
+            Alert.created_at.desc()
+        )
         .limit(8)
         .all()
     )

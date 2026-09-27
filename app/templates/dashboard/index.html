@@ -302,6 +302,7 @@
 
 {% endblock %}
 
+
 {% block scripts %}
 
 <link
@@ -313,24 +314,36 @@
 
 <script>
 
-  const countryLocations = {
-    "Kenya": [-0.0236, 37.9062],
-    "Ethiopia": [9.1450, 40.4897],
-    "Tanzania": [-6.3690, 34.8888],
-    "Uganda": [1.3733, 32.2903]
-  };
-
-  const countryRisks = {
+  /*
+   * Country information comes directly from the database.
+   *
+   * This means newly uploaded countries do not need
+   * to be added manually to this JavaScript file.
+   */
+  const countries = [
     {% for country in countries %}
-    "{{ country.name }}": "{{ country.current_risk_level }}"{% if not loop.last %},{% endif %}
+    {
+      name: {{ country.name|tojson }},
+      latitude: {{ country.latitude|tojson }},
+      longitude: {{ country.longitude|tojson }},
+      risk: {{ country.current_risk_level|tojson }}
+    }{% if not loop.last %},{% endif %}
     {% endfor %}
-  };
+  ];
 
+
+  /*
+   * Create the map.
+   */
   const map = L.map("riskMap").setView(
     [2.5, 36.5],
     5
   );
 
+
+  /*
+   * OpenStreetMap tiles.
+   */
   L.tileLayer(
     "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
     {
@@ -338,6 +351,10 @@
     }
   ).addTo(map);
 
+
+  /*
+   * Set marker colour according to risk level.
+   */
   function riskColor(risk) {
 
     if (risk === "high") {
@@ -351,34 +368,72 @@
     return "#2F7A5B";
   }
 
-  Object.entries(countryLocations).forEach(
-    ([country, coordinates]) => {
 
-      const risk = countryRisks[country] || "normal";
-      const color = riskColor(risk);
+  /*
+   * Add every country stored in the database to the map.
+   */
+  const markers = [];
 
-      const marker = L.circleMarker(
-        coordinates,
-        {
-          radius: 10,
-          color: color,
-          fillColor: color,
-          fillOpacity: 0.75,
-          weight: 2
-        }
-      );
+  countries.forEach(country => {
 
-      marker.bindPopup(
-        `
-          <strong>${country}</strong><br>
-          Risk level:
-          <strong>${risk.toUpperCase()}</strong>
-        `
-      );
-
-      marker.addTo(map);
+    /*
+     * Skip a country if coordinates could not be found.
+     */
+    if (
+      country.latitude === null ||
+      country.longitude === null
+    ) {
+      return;
     }
-  );
+
+
+    const color = riskColor(country.risk);
+
+
+    const marker = L.circleMarker(
+      [
+        country.latitude,
+        country.longitude
+      ],
+      {
+        radius: 10,
+        color: color,
+        fillColor: color,
+        fillOpacity: 0.75,
+        weight: 2
+      }
+    );
+
+
+    marker.bindPopup(
+      `
+        <strong>${country.name}</strong><br>
+        Risk level:
+        <strong>${country.risk.toUpperCase()}</strong>
+      `
+    );
+
+
+    marker.addTo(map);
+
+    markers.push(marker);
+
+  });
+
+
+  /*
+   * Automatically adjust the map to show
+   * all countries that have coordinates.
+   */
+  if (markers.length > 0) {
+
+    const group = L.featureGroup(markers);
+
+    map.fitBounds(
+      group.getBounds().pad(0.2)
+    );
+
+  }
 
 </script>
 

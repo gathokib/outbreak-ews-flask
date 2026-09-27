@@ -847,3 +847,1198 @@ section + section { margin-top: 40px; }
     height: 320px;
   }
 }
+
+/* =========================================================
+AUTHENTICATION PAGES
+Login + Register
+========================================================= */
+
+.login-page {
+min-height: calc(100vh - 80px);
+width: 100%;
+display: flex;
+align-items: center;
+justify-content: center;
+position: relative;
+padding: 50px 20px;
+margin: 0;
+overflow: hidden;
+
+
+background-image:
+    url("https://images.unsplash.com/photo-1584036561566-baf8f5f1b144?auto=format&fit=crop&w=2000&q=80");
+background-size: cover;
+background-position: center;
+background-repeat: no-repeat;
+
+
+}
+
+/* Dark layer over the background image */
+.login-overlay {
+position: absolute;
+inset: 0;
+background: rgba(8, 15, 20, 0.72);
+z-index: 0;
+}
+
+/* Authentication card */
+.login-card {
+position: relative;
+z-index: 1;
+width: min(430px, 100%);
+padding: 42px 40px;
+border-radius: 18px;
+
+
+background: rgba(15, 23, 28, 0.88);
+border: 1px solid rgba(238, 241, 236, 0.14);
+
+box-shadow:
+    0 25px 70px rgba(0, 0, 0, 0.45),
+    0 0 0 1px rgba(255, 255, 255, 0.02);
+
+backdrop-filter: blur(14px);
+-webkit-backdrop-filter: blur(14px);
+
+
+}
+
+/* Slightly wider card for registration */
+.register-card {
+width: min(470px, 100%);
+}
+
+/* Small brand heading */
+.login-brand {
+font-family: "Space Grotesk", sans-serif;
+font-size: 13px;
+font-weight: 700;
+letter-spacing: 0.18em;
+color: #eef1ec;
+margin-bottom: 8px;
+}
+
+/* Small section label */
+.login-label {
+font-family: "IBM Plex Mono", monospace;
+font-size: 11px;
+font-weight: 600;
+letter-spacing: 0.14em;
+color: #8fb8a2;
+margin-bottom: 18px;
+}
+
+/* Main heading */
+.login-card h1 {
+margin: 0 0 10px;
+font-family: "Space Grotesk", sans-serif;
+font-size: 32px;
+line-height: 1.15;
+font-weight: 700;
+color: #f1f4ef;
+}
+
+/* Description */
+.login-description {
+margin: 0 0 28px;
+color: rgba(238, 241, 236, 0.68);
+font-family: "IBM Plex Sans", sans-serif;
+font-size: 14px;
+line-height: 1.6;
+}
+
+/* Form fields */
+.login-field {
+margin-bottom: 18px;
+}
+
+.login-field label {
+display: block;
+margin-bottom: 7px;
+
+
+font-family: "IBM Plex Sans", sans-serif;
+font-size: 13px;
+font-weight: 600;
+color: #eef1ec;
+
+
+}
+
+/* Inputs and select */
+.login-field input,
+.login-field select {
+width: 100%;
+box-sizing: border-box;
+
+
+padding: 12px 14px;
+
+border: 1px solid rgba(238, 241, 236, 0.18);
+border-radius: 9px;
+
+background: rgba(255, 255, 255, 0.07);
+color: #f1f4ef;
+
+font-family: "IBM Plex Sans", sans-serif;
+font-size: 14px;
+
+outline: none;
+transition:
+    border-color 0.2s ease,
+    background 0.2s ease,
+    box-shadow 0.2s ease;
+
+
+}
+
+/* Placeholder */
+.login-field input::placeholder {
+color: rgba(238, 241, 236, 0.4);
+}
+
+/* Focus state */
+.login-field input:focus,
+.login-field select:focus {
+border-color: #8fb8a2;
+background: rgba(255, 255, 255, 0.09);
+
+
+box-shadow: 0 0 0 3px rgba(143, 184, 162, 0.12);
+
+
+}
+
+/* Select dropdown */
+.login-field select {
+cursor: pointer;
+}
+
+.login-field select option {
+background: #172127;
+color: #f1f4ef;
+}
+
+/* Validation errors */
+.login-field .field-error {
+margin-top: 6px;
+
+
+color: #e6a39a;
+font-family: "IBM Plex Sans", sans-serif;
+font-size: 12px;
+line-height: 1.4;
+
+
+}
+
+/* Main authentication button */
+.login-button {
+width: 100%;
+margin-top: 7px;
+padding: 13px 18px;
+
+
+border: none;
+border-radius: 9px;
+
+background: #8fb8a2;
+color: #102018;
+
+font-family: "Space Grotesk", sans-serif;
+font-size: 14px;
+font-weight: 700;
+
+cursor: pointer;
+
+transition:
+    transform 0.2s ease,
+    background 0.2s ease,
+    box-shadow 0.2s ease;
+
+
+}
+
+.login-button:hover {
+background: #a7c9b5;
+transform: translateY(-1px);
+box-shadow: 0 8px 22px rgba(0, 0, 0, 0.25);
+}
+
+.login-button:active {
+transform: translateY(0);
+}
+
+/* Bottom account link */
+.login-footer {
+margin-top: 24px;
+text-align: center;
+
+
+color: rgba(238, 241, 236, 0.6);
+
+font-family: "IBM Plex Sans", sans-serif;
+font-size: 13px;
+
+}
+
+.login-footer a {
+color: #a7c9b5;
+font-weight: 600;
+text-decoration: none;
+}
+
+.login-footer a:hover {
+color: #d0e3d6;
+text-decoration: underline;
+}
+
+/* =========================================================
+RESPONSIVE AUTH LAYOUT
+========================================================= */
+
+@media (max-width: 600px) {
+
+
+.login-page {
+    min-height: calc(100vh - 60px);
+    padding: 30px 15px;
+}
+
+.login-card,
+.register-card {
+    padding: 32px 24px;
+    border-radius: 14px;
+}
+
+.login-card h1 {
+    font-size: 27px;
+}
+
+.login-description {
+    font-size: 13px;
+}
+
+
+}
+
+/* =========================================================
+DATA MANAGEMENT
+========================================================= */
+
+.data-page-header {
+margin-bottom: 28px;
+}
+
+.data-management-grid {
+display: grid;
+grid-template-columns: repeat(2, minmax(0, 1fr));
+gap: 22px;
+margin-bottom: 22px;
+}
+
+.data-card {
+padding: 28px;
+border: 1px solid rgba(238, 241, 236, 0.12);
+border-radius: 14px;
+background: rgba(255, 255, 255, 0.025);
+box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+}
+
+.data-card-heading {
+display: flex;
+align-items: center;
+gap: 14px;
+margin-bottom: 18px;
+}
+
+.data-card-heading h2 {
+margin: 4px 0 0;
+}
+
+.data-icon {
+width: 42px;
+height: 42px;
+flex-shrink: 0;
+
+
+display: flex;
+align-items: center;
+justify-content: center;
+
+border-radius: 10px;
+
+font-family: "IBM Plex Mono", monospace;
+font-size: 20px;
+font-weight: 600;
+
+
+}
+
+.import-icon {
+background: rgba(143, 184, 162, 0.12);
+color: #8fb8a2;
+}
+
+.export-icon {
+background: rgba(197, 138, 34, 0.12);
+color: #c58a22;
+}
+
+.workflow-icon {
+background: rgba(143, 184, 162, 0.12);
+color: #8fb8a2;
+}
+
+.data-description {
+margin: 0 0 24px;
+color: var(--muted);
+line-height: 1.65;
+font-size: 14px;
+}
+
+.data-form {
+display: flex;
+flex-direction: column;
+gap: 17px;
+}
+
+.data-form-row {
+display: grid;
+grid-template-columns: 1fr 1fr;
+gap: 14px;
+}
+
+.data-form-group {
+display: flex;
+flex-direction: column;
+gap: 7px;
+}
+
+.data-form-group label {
+font-size: 13px;
+font-weight: 600;
+}
+
+.data-form-group input[type="text"],
+.data-form-group input[type="file"],
+.data-form-group select {
+width: 100%;
+box-sizing: border-box;
+
+
+padding: 11px 12px;
+
+border: 1px solid rgba(238, 241, 236, 0.15);
+border-radius: 8px;
+
+background: rgba(255, 255, 255, 0.04);
+color: var(--paper);
+
+font-family: "IBM Plex Sans", sans-serif;
+font-size: 14px;
+
+outline: none;
+
+
+}
+
+.data-form-group input:focus,
+.data-form-group select:focus {
+border-color: #8fb8a2;
+box-shadow: 0 0 0 3px rgba(143, 184, 162, 0.10);
+}
+
+.data-form-group input[type="file"] {
+padding: 9px;
+cursor: pointer;
+}
+
+.data-form-group select {
+cursor: pointer;
+}
+
+.data-form-group select option {
+background: #172127;
+color: var(--paper);
+}
+
+.data-submit {
+align-self: flex-start;
+margin-top: 3px;
+}
+
+.data-info-box {
+display: flex;
+flex-direction: column;
+gap: 8px;
+
+
+margin-top: 22px;
+padding: 14px 16px;
+
+border-left: 3px solid #8fb8a2;
+border-radius: 7px;
+
+background: rgba(143, 184, 162, 0.06);
+
+color: var(--muted);
+font-size: 12px;
+line-height: 1.5;
+
+
+}
+
+.data-info-box code {
+width: fit-content;
+padding: 4px 7px;
+
+
+border-radius: 5px;
+
+background: rgba(0, 0, 0, 0.18);
+color: #a7c9b5;
+
+font-family: "IBM Plex Mono", monospace;
+font-size: 11px;
+
+
+}
+
+.info-label {
+font-family: "IBM Plex Mono", monospace;
+font-size: 10px;
+font-weight: 600;
+letter-spacing: 0.1em;
+color: #8fb8a2;
+}
+
+.info-example {
+color: var(--muted);
+}
+
+/* =========================================================
+DATA PIPELINE WORKFLOW
+========================================================= */
+
+.workflow-card {
+margin-bottom: 22px;
+}
+
+.pipeline-flow {
+display: flex;
+align-items: center;
+justify-content: space-between;
+gap: 10px;
+margin-top: 28px;
+}
+
+.pipeline-step {
+flex: 1;
+min-height: 100px;
+
+
+display: flex;
+flex-direction: column;
+justify-content: center;
+
+padding: 16px;
+
+border: 1px solid rgba(238, 241, 236, 0.10);
+border-radius: 10px;
+
+background: rgba(255, 255, 255, 0.025);
+
+
+}
+
+.pipeline-step strong {
+margin: 7px 0 4px;
+font-family: "Space Grotesk", sans-serif;
+font-size: 14px;
+}
+
+.pipeline-step > span:last-child {
+color: var(--muted);
+font-size: 11px;
+line-height: 1.4;
+}
+
+.step-number {
+font-family: "IBM Plex Mono", monospace;
+font-size: 10px;
+font-weight: 600;
+color: #8fb8a2;
+}
+
+.pipeline-arrow {
+flex-shrink: 0;
+color: rgba(238, 241, 236, 0.35);
+font-size: 18px;
+}
+
+/* =========================================================
+STORED OBSERVATIONS
+========================================================= */
+
+.observations-card {
+margin-bottom: 30px;
+}
+
+.observations-heading {
+justify-content: space-between;
+}
+
+.record-count {
+padding: 5px 9px;
+
+
+border-radius: 20px;
+
+background: rgba(143, 184, 162, 0.10);
+color: #a7c9b5;
+
+font-family: "IBM Plex Mono", monospace;
+font-size: 10px;
+
+
+}
+
+.observations-table-wrapper {
+overflow-x: auto;
+margin-top: 22px;
+}
+
+.observations-table {
+width: 100%;
+border-collapse: collapse;
+}
+
+.observations-table th {
+padding: 12px 14px;
+
+
+border-bottom: 1px solid rgba(238, 241, 236, 0.12);
+
+color: var(--muted);
+
+font-family: "IBM Plex Mono", monospace;
+font-size: 10px;
+font-weight: 500;
+letter-spacing: 0.06em;
+text-transform: uppercase;
+text-align: left;
+
+
+}
+
+.observations-table td {
+padding: 14px;
+
+
+border-bottom: 1px solid rgba(238, 241, 236, 0.07);
+
+font-size: 13px;
+color: var(--paper);
+
+
+}
+
+.observations-table tbody tr {
+transition: background 0.15s ease;
+}
+
+.observations-table tbody tr:hover {
+background: rgba(255, 255, 255, 0.025);
+}
+
+.case-value {
+font-family: "IBM Plex Mono", monospace;
+font-weight: 600;
+}
+
+.source-value {
+color: var(--muted);
+font-size: 12px;
+}
+
+.empty-data-state {
+padding: 45px 20px;
+text-align: center;
+color: var(--muted);
+}
+
+.empty-data-icon {
+display: block;
+margin-bottom: 12px;
+
+
+color: #8fb8a2;
+font-family: "IBM Plex Mono", monospace;
+font-size: 28px;
+
+
+}
+
+.empty-data-state strong {
+display: block;
+margin-bottom: 5px;
+color: var(--paper);
+}
+
+.empty-data-state p {
+margin: 0;
+font-size: 13px;
+}
+
+/* =========================================================
+DATA MANAGEMENT RESPONSIVE
+========================================================= */
+
+@media (max-width: 850px) {
+
+
+.data-management-grid {
+    grid-template-columns: 1fr;
+}
+
+.pipeline-flow {
+    flex-direction: column;
+    align-items: stretch;
+}
+
+.pipeline-arrow {
+    text-align: center;
+    transform: rotate(90deg);
+}
+
+
+}
+
+@media (max-width: 600px) {
+
+
+.data-card {
+    padding: 21px;
+}
+
+.data-form-row {
+    grid-template-columns: 1fr;
+}
+
+.pipeline-step {
+    min-height: auto;
+}
+
+.observations-table th,
+.observations-table td {
+    padding: 11px 9px;
+}
+
+
+}
+
+
+/* =========================================================
+   DATA MANAGEMENT — FINAL UI
+   ========================================================= */
+
+.data-management-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 22px;
+  margin-bottom: 22px;
+}
+
+.data-card {
+  background: var(--paper);
+  border: 1px solid var(--line);
+  border-radius: 16px;
+  padding: 26px;
+}
+
+.import-card,
+.export-card {
+  min-height: 430px;
+}
+
+.data-card-heading {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  margin-bottom: 18px;
+}
+
+.data-card-heading h2,
+.workflow-card h2,
+.observations-card h2 {
+  margin: 3px 0 0;
+  font-family: "Space Grotesk", sans-serif;
+  font-size: 21px;
+  font-weight: 700;
+}
+
+.data-icon {
+  width: 46px;
+  height: 46px;
+  flex: 0 0 46px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 12px;
+  font-size: 23px;
+  font-weight: 700;
+}
+
+.import-icon {
+  background: rgba(47, 122, 91, 0.10);
+  color: #2f7a5b;
+}
+
+.export-icon {
+  background: rgba(197, 138, 34, 0.12);
+  color: #9a6c18;
+}
+
+.data-description {
+  color: var(--muted);
+  line-height: 1.6;
+  margin: 0 0 22px;
+  max-width: 560px;
+}
+
+.data-form {
+  display: flex;
+  flex-direction: column;
+  gap: 17px;
+}
+
+.data-form-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+}
+
+.data-form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+}
+
+.data-form-group label {
+  font-family: "IBM Plex Sans", sans-serif;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+/* COUNTRY + DISEASE FIELDS */
+
+.data-form-group input[type="text"],
+.data-form-group select {
+  display: block !important;
+  width: 100% !important;
+  height: 46px !important;
+  min-height: 46px !important;
+  padding: 0 13px !important;
+
+  background: #ffffff !important;
+  color: #16231F !important;
+
+  border: 1px solid #c7cec9 !important;
+  border-radius: 9px !important;
+
+  font-family: "IBM Plex Sans", sans-serif !important;
+  font-size: 13px !important;
+  font-weight: 500 !important;
+
+  box-sizing: border-box !important;
+  opacity: 1 !important;
+  visibility: visible !important;
+}
+
+.data-form-group input[type="text"]::placeholder {
+  color: #8a948e !important;
+  opacity: 1 !important;
+}
+
+.data-form-group input[type="text"]:hover,
+.data-form-group select:hover {
+  border-color: #9da8a1 !important;
+}
+
+.data-form-group input[type="text"]:focus,
+.data-form-group select:focus {
+  outline: none !important;
+  border-color: #2f7a5b !important;
+  box-shadow: 0 0 0 3px rgba(47, 122, 91, 0.10) !important;
+}
+
+
+/* FILE UPLOAD */
+
+.file-input-wrapper {
+  position: relative;
+}
+
+.file-input-wrapper input[type="file"] {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  opacity: 0;
+  overflow: hidden;
+}
+
+.file-input-label {
+  min-height: 72px;
+  padding: 12px 16px;
+  display: flex;
+  align-items: center;
+  gap: 13px;
+  border: 1.5px dashed #aeb8b1;
+  border-radius: 10px;
+  background: #fafbf9;
+  cursor: pointer;
+  transition: 0.2s ease;
+  box-sizing: border-box;
+}
+
+.file-input-label:hover {
+  border-color: var(--accent);
+  background: #f5f9f6;
+}
+
+.file-upload-icon {
+  width: 38px;
+  height: 38px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 9px;
+  background: #e8f1ec;
+  color: #2f7a5b;
+  font-size: 20px;
+  font-weight: 700;
+}
+
+.file-input-label strong,
+.file-input-label small {
+  display: block;
+}
+
+.file-input-label strong {
+  font-size: 14px;
+}
+
+.file-input-label small {
+  margin-top: 3px;
+  color: var(--muted);
+  font-size: 12px;
+}
+
+
+/* PRIMARY ACTION BUTTONS */
+
+.data-submit {
+  width: 100%;
+  min-height: 48px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  margin-top: 3px;
+  font-weight: 700;
+  font-size: 14px;
+  border-radius: 9px;
+  cursor: pointer;
+}
+
+.data-submit span {
+  font-size: 18px;
+  line-height: 1;
+}
+
+
+/* INFORMATION BOX */
+
+.data-info-box {
+  margin-top: 20px;
+  padding: 13px 15px;
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+  border-radius: 9px;
+  background: #f5f7f5;
+  color: var(--muted);
+  font-size: 12px;
+  line-height: 1.5;
+}
+
+.info-label {
+  font-family: "IBM Plex Mono", monospace;
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  color: var(--ink);
+}
+
+.required-columns {
+  display: flex;
+  gap: 7px;
+}
+
+.required-columns code {
+  padding: 4px 7px;
+  border-radius: 5px;
+  background: #e7ebe8;
+  color: var(--ink);
+  font-family: "IBM Plex Mono", monospace;
+}
+
+
+/* PIPELINE */
+
+.workflow-card {
+  margin-bottom: 22px;
+  padding: 23px 26px;
+}
+
+.workflow-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 22px;
+}
+
+.workflow-status {
+  padding: 6px 9px;
+  border-radius: 999px;
+  background: #e9f3ed;
+  color: #2f7a5b;
+  font-family: "IBM Plex Mono", monospace;
+  font-size: 10px;
+  font-weight: 600;
+}
+
+.pipeline-flow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.pipeline-step {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.pipeline-step strong {
+  font-family: "Space Grotesk", sans-serif;
+  font-size: 14px;
+}
+
+.pipeline-step > span:last-child {
+  color: var(--muted);
+  font-size: 11px;
+}
+
+.step-number {
+  color: var(--accent);
+  font-family: "IBM Plex Mono", monospace;
+  font-size: 10px;
+  font-weight: 600;
+}
+
+.pipeline-arrow {
+  color: #a9b1ac;
+  font-size: 18px;
+}
+
+
+/* DATABASE */
+
+.observations-card {
+  padding: 0;
+  overflow: hidden;
+}
+
+.observations-header {
+  min-height: 76px;
+  padding: 19px 24px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-bottom: 1px solid var(--line);
+  box-sizing: border-box;
+}
+
+.record-count {
+  padding: 6px 10px;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  color: var(--muted);
+  font-family: "IBM Plex Mono", monospace;
+  font-size: 10px;
+}
+
+.database-preview {
+  max-height: 285px;
+  overflow-y: auto;
+}
+
+/* Stored Observations - table visibility fix */
+.observations-table {
+    width: 100%;
+    border-collapse: collapse;
+    color: #1f2937;
+}
+
+.observations-table th {
+    color: #374151;
+    background: #f3f4f6;
+    font-weight: 600;
+}
+
+.observations-table td {
+    color: #1f2937;
+    background: #ffffff;
+}
+
+.observations-table tbody tr {
+    border-bottom: 1px solid #e5e7eb;
+}
+
+.observations-table tbody tr:hover {
+    background: #f9fafb;
+}
+
+.observations-table strong {
+    color: #111827;
+}
+
+.observations-table .case-value {
+    color: #111827;
+    font-weight: 600;
+}
+
+.observations-table .source-value {
+    color: #4b5563;
+}
+
+.case-value {
+  font-family: "IBM Plex Mono", monospace;
+  font-weight: 600;
+}
+
+.source-value {
+  color: var(--muted);
+  font-size: 11px;
+}
+
+.database-footer {
+  padding: 14px 24px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-top: 1px solid var(--line);
+  color: var(--muted);
+  font-size: 11px;
+}
+
+.database-export-link {
+  color: var(--accent);
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.database-export-link:hover {
+  text-decoration: underline;
+}
+
+
+/* EMPTY DATABASE */
+
+.empty-data-state {
+  min-height: 170px;
+  padding: 30px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+}
+
+.empty-data-icon {
+  margin-bottom: 8px;
+  color: #aeb8b1;
+  font-size: 30px;
+}
+
+.empty-data-state strong {
+  font-family: "Space Grotesk", sans-serif;
+  font-size: 15px;
+}
+
+.empty-data-state p {
+  max-width: 430px;
+  margin: 7px 0 0;
+  color: var(--muted);
+  font-size: 12px;
+}
+
+
+/* RESPONSIVE */
+
+@media (max-width: 900px) {
+
+  .data-management-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .import-card,
+  .export-card {
+    min-height: auto;
+  }
+
+  .pipeline-flow {
+    flex-wrap: wrap;
+  }
+
+  .pipeline-arrow {
+    display: none;
+  }
+
+}
+
+
+@media (max-width: 600px) {
+
+  .data-card {
+    padding: 19px;
+  }
+
+  .data-form-row {
+    grid-template-columns: 1fr;
+  }
+
+  .workflow-header,
+  .observations-header,
+  .database-footer {
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .database-preview {
+    overflow-x: auto;
+  }
+
+  .observations-table {
+    min-width: 650px;
+  }
+
+}
+
+

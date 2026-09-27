@@ -1,39 +1,93 @@
 {% extends "base.html" %}
+
 {% block title %}Register — Outbreak EWS{% endblock %}
+
 {% block content %}
-<div class="panel-wrap">
-  <div class="panel">
-    <div class="eyebrow">Outbreak EWS · Access</div>
-    <h2>Create an account</h2>
+
+<div class="login-page">
+
+```
+<div class="login-overlay"></div>
+
+<div class="login-card register-card">
+
+    <div class="login-brand">
+        OUTBREAK EWS
+    </div>
+
+    <div class="login-label">
+        CREATE ACCOUNT
+    </div>
+
+    <h1>Join Outbreak EWS</h1>
+
+    <p class="login-description">
+        Create an account to access the outbreak surveillance system.
+    </p>
+
     <form method="post" novalidate>
-      {{ form.hidden_tag() }}
-      <div class="field">
-        {{ form.username.label }}
-        {{ form.username() }}
-        {% for e in form.username.errors %}<div class="field-error">{{ e }}</div>{% endfor %}
-      </div>
-      <div class="field">
-        {{ form.email.label }}
-        {{ form.email() }}
-        {% for e in form.email.errors %}<div class="field-error">{{ e }}</div>{% endfor %}
-      </div>
-      <div class="field">
-        {{ form.password.label }}
-        {{ form.password() }}
-        {% for e in form.password.errors %}<div class="field-error">{{ e }}</div>{% endfor %}
-      </div>
-      <div class="field">
-        {{ form.confirm_password.label }}
-        {{ form.confirm_password() }}
-        {% for e in form.confirm_password.errors %}<div class="field-error">{{ e }}</div>{% endfor %}
-      </div>
-      <div class="field">
-        {{ form.role.label }}
-        {{ form.role() }}
-      </div>
-      <button type="submit" class="btn" style="width:100%; justify-content:center;">Create account</button>
+
+        {{ form.hidden_tag() }}
+
+        <div class="login-field">
+            {{ form.username.label }}
+            {{ form.username(placeholder="Choose a username") }}
+
+            {% for error in form.username.errors %}
+                <div class="field-error">{{ error }}</div>
+            {% endfor %}
+        </div>
+
+        <div class="login-field">
+            {{ form.email.label }}
+            {{ form.email(placeholder="Enter your email") }}
+
+            {% for error in form.email.errors %}
+                <div class="field-error">{{ error }}</div>
+            {% endfor %}
+        </div>
+
+        <div class="login-field">
+            {{ form.password.label }}
+            {{ form.password(placeholder="Create a password") }}
+
+            {% for error in form.password.errors %}
+                <div class="field-error">{{ error }}</div>
+            {% endfor %}
+        </div>
+
+        <div class="login-field">
+            {{ form.confirm_password.label }}
+            {{ form.confirm_password(placeholder="Confirm your password") }}
+
+            {% for error in form.confirm_password.errors %}
+                <div class="field-error">{{ error }}</div>
+            {% endfor %}
+        </div>
+
+        <div class="login-field">
+            {{ form.role.label }}
+            {{ form.role() }}
+
+            {% for error in form.role.errors %}
+                <div class="field-error">{{ error }}</div>
+            {% endfor %}
+        </div>
+
+        <button type="submit" class="login-button">
+            Create account
+        </button>
+
     </form>
-    <p class="panel-foot">Already have an account? <a href="{{ url_for('auth.login') }}">Log in</a></p>
-  </div>
+
+    <div class="login-footer">
+        Already have an account?
+        <a href="{{ url_for('auth.login') }}">Log in</a>
+    </div>
+
 </div>
+```
+
+</div>
+
 {% endblock %}
